@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EmployeeTracker.Models
 {
@@ -6,13 +7,15 @@ namespace EmployeeTracker.Models
     {
         [Key]
         public int BreakId { get; set; }
-        [Required]
+        [ForeignKey("WorkSession")]
         public int SessionId { get; set; }
-        
-        public WorkSession WorkSessions { get; set; } = null!;
+
+        public WorkSession WorkSession { get; set; } = null!;
+
         [Required]
         public DateTime BreakStartTime { get; set; }
         [Required]
         public DateTime? BreakEndTime { get; set; }
+    
     }
 }
