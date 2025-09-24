@@ -19,7 +19,7 @@ namespace EmployeeTracker.Models
 
         public ICollection<WorkSession>? WorkSessions {  get; set; }
         public ICollection<Attendance>? Attendances{ get; set; }
-        public ICollection<LeaveRequest>? Employees { get; set; }
+        public ICollection<LeaveRequest>? LeaveRequests{ get; set; }
         public ICollection<EmpTask>? Tasks { get; set; }
 
         
