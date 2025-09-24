@@ -2,7 +2,7 @@
 
 namespace EmployeeTracker.Models
 {
-    public class Task
+    public class EmpTask
     {
         [Key]
         public int TaskId { get; set; }
