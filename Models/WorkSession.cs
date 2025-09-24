@@ -12,4 +12,4 @@
         public ICollection<Break>? Breaks { get; set; }
     }
 }
-}
+
