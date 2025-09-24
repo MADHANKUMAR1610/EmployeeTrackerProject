@@ -9,7 +9,7 @@ namespace EmployeeTracker.Models
         [Required]
         public int EmployeeId { get; set; }
         [Required]
-        public Employee Employee { get; set; } 
+        public Employee Employee { get; set; } = null!;
         [Required]
         public DateTime Date { get; set; }
         [Required]
