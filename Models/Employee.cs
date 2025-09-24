@@ -7,15 +7,16 @@ namespace EmployeeTracker.Models
         [Key]
         public int EmployeeId { get; set; }
         [Required]
-        public string EmployeeName {  get; set; }
+        public string EmployeeName { get; set; } = null!;
         [Required]
-        public string Mail { get; set; }
+        public string Mail { get; set; } = null!;
         [Required]
-        public string Password { get; set; }
+        public string Password { get; set; } = null!;
         [Required]
-        public string Role{ get; set; }
+        public string Role { get; set; } = null!;
         
-        public string? Profile_PictureUrl { get; set; }
+        public string? profile_pictureUrl { get; set; }
+      
 
         public ICollection<WorkSession>? WorkSessions {  get; set; }
         public ICollection<Attendance>? Attendances{ get; set; }
