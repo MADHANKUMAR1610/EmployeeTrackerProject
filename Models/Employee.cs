@@ -13,8 +13,10 @@ namespace EmployeeTracker.Models
         [Required]
         public string Password { get; set; } = null!;
         [Required]
+
         public string Role { get; set; } = null!;
        
+
         public string? profile_pictureUrl { get; set; }
       
 
