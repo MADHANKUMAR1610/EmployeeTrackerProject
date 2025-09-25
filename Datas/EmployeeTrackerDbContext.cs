@@ -3,11 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EmployeeTracker.Datas
 {
-    public class EmployeeTrackerDbContext : DbContext
+    public class EmployeeTrackerDbContext(DbContextOptions<EmployeeTrackerDbContext> options) : DbContext(options)
     {
-        public EmployeeTrackerDbContext(DbContextOptions<EmployeeTrackerDbContext> options)
-        : base(options) { }
-
         public DbSet<Employee> Employees { get; set; }
         public DbSet<WorkSession> WorkSessions { get; set; }
         public DbSet<Break> Breaks { get; set; }

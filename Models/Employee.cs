@@ -16,7 +16,7 @@ namespace EmployeeTracker.Models
 
         public string Role { get; set; } = null!;
 
-        public string? profile_pictureUrl { get; set; }
+        public string? Profile_pictureUrl { get; set; }
 
         public ICollection<WorkSession>? WorkSessions {  get; set; }
         public ICollection<Attendance>? Attendances{ get; set; }

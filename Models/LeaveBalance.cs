@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EmployeeTracker.Models
 {
@@ -6,7 +7,8 @@ namespace EmployeeTracker.Models
     {
         public int LeaveBalanceId { get; set; }
         public int EmployeeId { get; set; }
-        public Employee Employee { get; set; }
+        
+        public Employee? Employee { get; set; }
         public LeaveType LeaveType { get; set; }
         public int TotalLeaves { get; set; }
         public int UsedLeaves { get; set; }
