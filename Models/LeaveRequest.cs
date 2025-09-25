@@ -6,13 +6,13 @@ namespace EmployeeTracker.Models
     {
         [Key]
         public int LeaveRequestId { get; set; }
-        [Required]
+        
         public int EmployeeId { get; set; }
-        [Required]
+        
         public Employee Employee { get; set; } = null!;
-        [Required]
+        
         public DateTime StartTime { get; set; }
-        [Required]
+        
         public DateTime EndTime { get; set; }
         
         public string Reason { get; set; } = string.Empty;

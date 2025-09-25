@@ -12,9 +12,9 @@ namespace EmployeeTracker.Models
 
         public WorkSession WorkSession { get; set; } = null!;
 
-        [Required]
+        
         public DateTime BreakStartTime { get; set; }
-        [Required]
+        
         public DateTime? BreakEndTime { get; set; }
     
     }

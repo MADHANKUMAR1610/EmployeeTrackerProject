@@ -6,13 +6,13 @@ namespace EmployeeTracker.Models
     {
         [Key]
         public int EmployeeId { get; set; }
-        [Required]
+        
         public string EmployeeName { get; set; } = null!;
-        [Required]
+        
         public string Mail { get; set; } = null!;
-        [Required]
+        
         public string Password { get; set; } = null!;
-        [Required]
+
         public string Role { get; set; } = null!;
 
         public string? profile_pictureUrl { get; set; }
