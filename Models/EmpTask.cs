@@ -12,9 +12,9 @@ namespace EmployeeTracker.Models
         public Employee Employee { get; set; } = null!;
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        [Required]
+        
         public DateTime StartDate { get; set; }
-        [Required]
+        
         public DateTime DueDate { get; set; }
         public string Status { get; set; } = "Pending";
 
