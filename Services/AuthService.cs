@@ -64,10 +64,13 @@ namespace EmployeeTracker.Services
             {
             new Claim(ClaimTypes.NameIdentifier, employee.EmployeeId.ToString()),
             new Claim(ClaimTypes.Email, employee.Mail),
-            new Claim(ClaimTypes.Role, "Employee")
+            new Claim(ClaimTypes.Role, employee.Role)
         };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var jwtKey = _configuration["Jwt:Key"]
+              ?? throw new InvalidOperationException("JWT Key not found in configuration");
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
             var token = new JwtSecurityToken(
