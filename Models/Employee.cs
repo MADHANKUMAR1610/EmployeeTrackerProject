@@ -10,8 +10,9 @@ namespace EmployeeTracker.Models
         public string EmployeeName { get; set; } = null!;
         
         public string Mail { get; set; } = null!;
-        
-        public string Password { get; set; } = null!;
+
+        public byte[]? PasswordHash { get; set; } 
+        public byte[]? PasswordSalt { get; set; }
 
         public string Role { get; set; } = null!;
 
@@ -20,6 +21,7 @@ namespace EmployeeTracker.Models
         public ICollection<WorkSession>? WorkSessions {  get; set; }
         public ICollection<Attendance>? Attendances{ get; set; }
         public ICollection<LeaveRequest>? LeaveRequests{ get; set; }
+        public ICollection<LeaveBalance>? LeaveBalance{ get; set; }
         public ICollection<EmpTask>? Tasks { get; set; }
 
         

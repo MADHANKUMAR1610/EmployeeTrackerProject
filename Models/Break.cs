@@ -16,6 +16,7 @@ namespace EmployeeTracker.Models
         public DateTime BreakStartTime { get; set; }
         
         public DateTime? BreakEndTime { get; set; }
+        public double? BreakDurationHours { get; set; }
     
     }
 }

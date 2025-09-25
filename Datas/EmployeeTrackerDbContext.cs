@@ -14,6 +14,7 @@ namespace EmployeeTracker.Datas
         public DbSet<Attendance> Attendances { get; set; }
         public DbSet<EmpTask> Tasks { get; set; }
         public DbSet<LeaveRequest> LeaveRequests { get; set; }
+        public DbSet<LeaveBalance> LeaveBalance { get; set; }
 
 
 

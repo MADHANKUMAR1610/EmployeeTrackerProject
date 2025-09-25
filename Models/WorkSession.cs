@@ -14,7 +14,7 @@ namespace EmployeeTracker.Models
         
         public DateTime? LogoutTime { get; set; }
         
-        public TimeSpan? TotalWorkedTime { get; set; }
+        public double TotalWorkedHours { get; set; }
 
         public ICollection<Break>? Breaks { get; set; }
     }

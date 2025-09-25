@@ -10,6 +10,7 @@ namespace EmployeeTracker.Models
         public int EmployeeId { get; set; }
         
         public Employee Employee { get; set; } = null!;
+        public LeaveType LeaveType { get; set; }
         
         public DateTime StartTime { get; set; }
         
@@ -18,5 +19,6 @@ namespace EmployeeTracker.Models
         public string Reason { get; set; } = string.Empty;
         
         public string Status { get; set; } = "Pending";
+        public DateTime CreatedAt { get; set; }= DateTime.UtcNow;
     }
 }

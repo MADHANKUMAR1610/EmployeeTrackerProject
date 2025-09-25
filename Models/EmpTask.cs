@@ -9,11 +9,12 @@ namespace EmployeeTracker.Models
         
         public int EmployeeId { get; set; }
         
-        public Employee Employee { get; set; } = null!;
+        public Employee Employee { get; set;} = null!;
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+
+        public DateTime StartDate { get; set; } = DateTime.UtcNow;
         
-        public DateTime StartDate { get; set; }
         
         public DateTime DueDate { get; set; }
         public string Status { get; set; } = "Pending";
