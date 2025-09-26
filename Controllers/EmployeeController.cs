@@ -27,6 +27,13 @@ namespace EmployeeTracker.Controllers
             if (emp == null) return NotFound();
             return Ok(emp);
         }
+        [HttpPost]
+        public async Task<IActionResult> Create(Employee employee)
+        {
+            var created = await _service.CreateEmployeeAsync(employee);
+            return CreatedAtAction(nameof(Get), new { id = created.EmployeeId }, created);
+        }
+
 
         // Update profile (employee may update their own details)
         [HttpPut("{id}")]
