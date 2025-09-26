@@ -7,31 +7,25 @@ namespace EmployeeTracker.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
 
-        public AuthController(AuthService authService)
+        public AuthController(IAuthService authService)
         {
             _authService = authService;
         }
 
-        // ✅ Only Login Endpoint
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+        public async Task<IActionResult> Login(string email, string password)
         {
-            var token = await _authService.LoginAsync(loginDto.Email!, loginDto.Password!);
-
-            if (token == null)
-                return Unauthorized("Invalid credentials");
-
-            return Ok(new { Token = token });
+            var user = await _authService.LoginAsync(email, password);
+            if (user == null) return Unauthorized("Invalid credentials");
+            return Ok(user);
         }
-    }
-
-    // DTO for login request
-    public class LoginDto
-    {
-        public string? Email { get; set; }
-        public string? Password { get; set; }
+        public class LoginDto
+        {
+            public string Email { get; set; }
+            public string Password { get; set; }
+        }
     }
 }
 

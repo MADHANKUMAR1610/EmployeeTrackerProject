@@ -1,4 +1,5 @@
 ﻿using EmployeeTracker.Models;
+using EmployeeTracker.Repository;
 using EmployeeTracker.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,28 +10,16 @@ namespace EmployeeTracker.Controllers
     [ApiController]
     public class AttendanceController : ControllerBase
     {
-        private readonly AttendanceService _service;
-        public AttendanceController(AttendanceService service) => _service = service;
+        private readonly IGenericRepository<EmployeeTracker.Models.Attendance> _repo;
+        public AttendanceController(IGenericRepository<EmployeeTracker.Models.Attendance> repo) => _repo = repo;
 
-        // Get all attendance records
         [HttpGet]
-        public async Task<IActionResult> GetAll() => Ok(await _service.GetAllAsync());
+        public async Task<IActionResult> GetAll() => Ok(await _repo.GetAllAsync());
 
-        // Get attendance for employee
-        [HttpGet("employee/{employeeId}")]
-        public async Task<IActionResult> GetByEmployee(int employeeId) => Ok(await _service.GetByEmployeeAsync(employeeId));
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(int id) => Ok(await _repo.GetAsync(id));
 
-        // Create an attendance record (for example, when employee clocks in/out you may create/update record)
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Attendance a)
-        {
-            await _service.AddAsync(a);
-            return CreatedAtAction(nameof(GetByEmployee), new { employeeId = a.EmployeeId }, a);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, Attendance a) { if (id != a.AttendanceId) return BadRequest(); await _service.UpdateAsync(a); return NoContent(); }
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id) { await _service.DeleteAsync(id); return NoContent(); }
+        public async Task<IActionResult> Create(EmployeeTracker.Models.Attendance a) => Ok(await _repo.AddAsync(a));
     }
 }

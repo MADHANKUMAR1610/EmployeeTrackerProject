@@ -7,54 +7,39 @@ namespace EmployeeTracker.Repository
 {
     public class EmpTracker
     {
-        public class GenericRepository<T>(EmployeeTrackerDbContext context) : IGenericRepository<T> where T : class
+        public class GenericRepository<T> : IGenericRepository<T> where T : class
         {
-            protected readonly EmployeeTrackerDbContext _context = context;
-            protected readonly DbSet<T> _db = context.Set<T>();
 
-            public async Task AddAsync(T entity)
+            protected readonly EmployeeTrackerDbContext _ctx;
+            public GenericRepository(EmployeeTrackerDbContext ctx) => _ctx = ctx;
+
+            public async Task<T> AddAsync(T entity)
             {
-                await _db.AddAsync(entity);
-                await _context.SaveChangesAsync();
+                var e = (await _ctx.Set<T>().AddAsync(entity)).Entity;
+                await _ctx.SaveChangesAsync();
+                return e;
             }
 
             public async Task DeleteAsync(int id)
             {
-                var entity = await _db.FindAsync(id);
+                var set = _ctx.Set<T>();
+                var entity = await set.FindAsync(id);
                 if (entity == null) return;
-                _db.Remove(entity);
-                await _context.SaveChangesAsync();
-            }
-
-            public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
-            {
-                return await _db.Where(predicate).ToListAsync();
+                set.Remove(entity);
+                await _ctx.SaveChangesAsync();
             }
 
             public async Task<IEnumerable<T>> GetAllAsync()
             {
-                return await _db.ToListAsync();
+                return await _ctx.Set<T>().ToListAsync();
             }
 
-            public DbSet<T> Get_db()
-            {
-                return _db;
-            }
-
-            public async Task<T?> GetByIdAsync(int id, DbSet<T> _db)
-            {
-                return await _db.FindAsync(id);
-            }
+            public async Task<T> GetAsync(int id) => await _ctx.Set<T>().FindAsync(id);
 
             public async Task UpdateAsync(T entity)
             {
-                _db.Update(entity);
-                await _context.SaveChangesAsync();
-            }
-
-            public Task<T> GetByIdAsync(int id)
-            {
-                throw new NotImplementedException();
+                _ctx.Set<T>().Update(entity);
+                await _ctx.SaveChangesAsync();
             }
         }
     }

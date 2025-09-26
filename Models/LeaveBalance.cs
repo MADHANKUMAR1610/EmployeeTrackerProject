@@ -5,14 +5,15 @@ namespace EmployeeTracker.Models
 {
     public class LeaveBalance
     {
-        public int LeaveBalanceId { get; set; }
-        public int EmployeeId { get; set; }
-        
-        public Employee? Employee { get; set; }
+        public int Id { get; set; }
+        public int EmpId { get; set; }
+        public Employee Employee { get; set; }
+
         public LeaveType LeaveType { get; set; }
-        public int TotalLeaves { get; set; }
-        public int UsedLeaves { get; set; }
+        public int TotalLeave { get; set; }
+        public int UsedLeave { get; set; }
+
         [NotMapped]
-        public int RemainingLeaves => TotalLeaves - LeaveBalanceId;
+        public int RemainingLeave => TotalLeave - UsedLeave;
     }
 }

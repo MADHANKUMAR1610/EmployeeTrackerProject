@@ -1,6 +1,6 @@
 ﻿using EmployeeTracker.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeTracker.Controllers
@@ -10,29 +10,24 @@ namespace EmployeeTracker.Controllers
     [Authorize]
     public class BreakController : ControllerBase
     {
-        private readonly BreakService _service;
-        public BreakController(BreakService service) => _service = service;
+        private readonly IBreakService _bs;
+        public BreakController(IBreakService bs) => _bs = bs;
 
-        // Start break for a session (employee clicked "Take Break")
-        [HttpPost("start/{sessionId}")]
-        public async Task<IActionResult> StartBreak(int sessionId, [FromBody] StartBreakDto dto)
+        [HttpPost("start/{empId}")]
+        public async Task<IActionResult> Start(int empId)
         {
-            var br = await _service.StartBreakAsync(sessionId);
-            // UI should record returned BreakId so it can call end later.
-            return Ok(br);
+            var b = await _bs.StartBreakAsync(empId);
+            if (b == null) return BadRequest("No active session found.");
+            return Ok(b);
         }
 
-        // End break (employee clicked "Close Break")
-        [HttpPost("end/{breakId}")]
-        public async Task<IActionResult> EndBreak(int breakId)
+        [HttpPost("end/{empId}")]
+        public async Task<IActionResult> End(int empId)
         {
-            var br = await _service.EndBreakAsync(breakId);
-            if (br == null) return NotFound("Break not found or already ended.");
-            // This sets BreakEndTime and BreakDurationHours.
-            return Ok(br);
+            var b = await _bs.EndBreakAsync(empId);
+            if (b == null) return BadRequest("No active break found.");
+            return Ok(b);
         }
-
-        public class StartBreakDto { public string? Type { get; set; } }
     }
 }
 

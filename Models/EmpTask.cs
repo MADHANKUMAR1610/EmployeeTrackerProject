@@ -4,24 +4,24 @@ namespace EmployeeTracker.Models
 {
     public class EmpTask
     {
-        [Key]
-        public int TaskId { get; set; }
-        
-        public int EmployeeId { get; set; }
-        
-        public Employee Employee { get; set;} = null!;
-        public string Title { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
+        public int Id { get; set; }
+
+        // creator
+        public int EmpId { get; set; }
+        public Employee Employee { get; set; }
+
+        // assignee (another employee reference)
         public int? AssigneeId { get; set; }
-        public Employee? Assignee { get; set; }
+        public Employee Assignee { get; set; }
 
-        public DateTime StartDate { get; set; } = DateTime.UtcNow;
-        
-        
-        public DateTime DueDate { get; set; }
-        public string Status { get; set; } = "Pending";
+        public string Title { get; set; }
+        public string Description { get; set; }
 
-        public string Priority { get; set; } = "Medium";
-        public string? Tag { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? DueDate { get; set; }
+
+        public TaskStatus Status { get; set; } = TaskStatus.Todo;
+        public TaskPriority Priority { get; set; } = TaskPriority.Medium;
+        public string Tag { get; set; }
     }
-}
+    }
