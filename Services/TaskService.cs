@@ -1,6 +1,7 @@
 ﻿using EmployeeTracker.Datas;
 using EmployeeTracker.Models;
 using EmployeeTracker.Repository;
+using Microsoft.EntityFrameworkCore;
 using System;
 
 namespace EmployeeTracker.Services
@@ -23,6 +24,18 @@ namespace EmployeeTracker.Services
         public Task UpdateAsync(EmpTask t) => _repo.UpdateAsync(t);
         public Task DeleteAsync(int id) => _repo.DeleteAsync(id);
 
+        // ✅ Assign a task to another employee
+        public async Task<bool> AssignTaskAsync(int taskId, int assigneeId)
+        {
+            var task = await _context.Tasks.FindAsync(taskId);
+            var employee = await _context.Employees.FindAsync(assigneeId);
+
+            if (task == null || employee == null) return false;
+
+            task.AssigneeId = assigneeId;
+            await _context.SaveChangesAsync();
+            return true;
+        }
         // Mark task as completed
         public async Task<bool> MarkDoneAsync(int taskId)
         {
@@ -41,6 +54,14 @@ namespace EmployeeTracker.Services
             t.Priority = priority;
             await _context.SaveChangesAsync();
             return true;
+        }
+        // ✅ Get tasks with Assignee details
+        public async Task<IEnumerable<EmpTask>> GetTasksWithAssigneeAsync()
+        {
+            return await _context.Tasks
+                .Include(t => t.Employee)
+                .Include(t => t.Assignee)
+                .ToListAsync();
         }
     }
 }
