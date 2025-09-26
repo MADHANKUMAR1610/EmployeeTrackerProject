@@ -15,10 +15,7 @@ namespace EmployeeTracker.Services
                 var all = await _repo.FindAsync(e => e.Mail.ToLower() == email.ToLower());
                 return all.FirstOrDefault()!;
             }
-<<<<<<< HEAD
-      
-=======
->>>>>>> aa10faf17cf62578e734c0796d15a63677373157
+
         public Task AddAsync(Employee e) => _repo.AddAsync(e);
             public Task UpdateAsync(Employee e) => _repo.UpdateAsync(e);
             public Task DeleteAsync(int id) => _repo.DeleteAsync(id);
