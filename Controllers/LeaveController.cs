@@ -1,4 +1,6 @@
-﻿using EmployeeTracker.Models;
+﻿using AutoMapper;
+using EmployeeTracker.Dtos;
+using EmployeeTracker.Models;
 using EmployeeTracker.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,26 +11,42 @@ namespace EmployeeTracker.Controllers
     [ApiController]
     public class LeaveController : ControllerBase
     {
-        private readonly ILeaveService _ls;
-        public LeaveController(ILeaveService ls) => _ls = ls;
+        private readonly ILeaveService _leaveService;
+        private readonly IMapper _mapper;
 
+        public LeaveController(ILeaveService leaveService, IMapper mapper)
+        {
+            _leaveService = leaveService;
+            _mapper = mapper;
+        }
+
+        // ---------------- Apply Leave ----------------
         [HttpPost("apply")]
-        public async Task<IActionResult> Apply(LeaveRequest request)
+        public async Task<ActionResult<LeaveRequestDto>> Apply(CreateLeaveRequestDto dto)
         {
-            var r = await _ls.ApplyLeaveAsync(request);
-            return Ok(r);
+            var leaveRequest = _mapper.Map<LeaveRequest>(dto);
+            var result = await _leaveService.ApplyLeaveAsync(leaveRequest);
+
+            return Ok(_mapper.Map<LeaveRequestDto>(result));
         }
 
+        // ---------------- Approve Leave ----------------
         [HttpPost("approve/{id}")]
-        public async Task<IActionResult> Approve(int id)
+        public async Task<ActionResult<LeaveRequestDto>> Approve(int id)
         {
-            var r = await _ls.ApproveLeaveAsync(id);
-            if (r == null) return NotFound();
-            return Ok(r);
+            var result = await _leaveService.ApproveLeaveAsync(id);
+            if (result == null) return NotFound();
+
+            return Ok(_mapper.Map<LeaveRequestDto>(result));
         }
 
+        // ---------------- Get Leave by Employee ----------------
         [HttpGet("byemp/{empId}")]
-        public async Task<IActionResult> ByEmp(int empId) => Ok(await _ls.GetByEmpAsync(empId));
+        public async Task<ActionResult<IEnumerable<LeaveRequestDto>>> ByEmp(int empId)
+        {
+            var leaves = await _leaveService.GetByEmpAsync(empId);
+            return Ok(_mapper.Map<IEnumerable<LeaveRequestDto>>(leaves));
+        }
     }
 }
 

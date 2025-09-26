@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace EmployeeTracker.Migrations
 {
     /// <inheritdoc />
-    public partial class UpempDb : Migration
+    public partial class Updatedb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -52,7 +52,7 @@ namespace EmployeeTracker.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "EmplTasks",
+                name: "EmpTask",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -69,15 +69,15 @@ namespace EmployeeTracker.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EmplTasks", x => x.Id);
+                    table.PrimaryKey("PK_EmpTask", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_EmplTasks_Employees_AssigneeId",
+                        name: "FK_EmpTask_Employees_AssigneeId",
                         column: x => x.AssigneeId,
                         principalTable: "Employees",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_EmplTasks_Employees_EmpId",
+                        name: "FK_EmpTask_Employees_EmpId",
                         column: x => x.EmpId,
                         principalTable: "Employees",
                         principalColumn: "Id",
@@ -191,13 +191,13 @@ namespace EmployeeTracker.Migrations
                 column: "WorkSessionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EmplTasks_AssigneeId",
-                table: "EmplTasks",
+                name: "IX_EmpTask_AssigneeId",
+                table: "EmpTask",
                 column: "AssigneeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EmplTasks_EmpId",
-                table: "EmplTasks",
+                name: "IX_EmpTask_EmpId",
+                table: "EmpTask",
                 column: "EmpId");
 
             migrationBuilder.CreateIndex(
@@ -226,7 +226,7 @@ namespace EmployeeTracker.Migrations
                 name: "Breaks");
 
             migrationBuilder.DropTable(
-                name: "EmplTasks");
+                name: "EmpTask");
 
             migrationBuilder.DropTable(
                 name: "LeaveBalances");

@@ -1,6 +1,9 @@
-﻿using EmployeeTracker.Services;
+﻿using AutoMapper;
+using EmployeeTracker.Datas;
+using EmployeeTracker.Dtos;
+using EmployeeTracker.Models;
+using EmployeeTracker.Services;
 using Microsoft.AspNetCore.Authorization;
-
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeTracker.Controllers
@@ -10,23 +13,37 @@ namespace EmployeeTracker.Controllers
     [Authorize]
     public class BreakController : ControllerBase
     {
-        private readonly IBreakService _bs;
-        public BreakController(IBreakService bs) => _bs = bs;
+        private readonly EmployeeTrackerDbContext _context;
+        private readonly IMapper _mapper;
 
-        [HttpPost("start/{empId}")]
-        public async Task<IActionResult> Start(int empId)
+        public BreakController(EmployeeTrackerDbContext context, IMapper mapper)
         {
-            var b = await _bs.StartBreakAsync(empId);
-            if (b == null) return BadRequest("No active session found.");
-            return Ok(b);
+            _context = context;
+            _mapper = mapper;
         }
 
-        [HttpPost("end/{empId}")]
-        public async Task<IActionResult> End(int empId)
+        [HttpPost("start")]
+        public async Task<ActionResult<BreakDto>> StartBreak(CreateBreakDto dto)
         {
-            var b = await _bs.EndBreakAsync(empId);
-            if (b == null) return BadRequest("No active break found.");
-            return Ok(b);
+            var breakEntity = _mapper.Map<Break>(dto);
+            _context.Breaks.Add(breakEntity);
+            await _context.SaveChangesAsync();
+
+            return Ok(_mapper.Map<BreakDto>(breakEntity));
+        }
+
+        [HttpPost("end/{id}")]
+        public async Task<ActionResult<BreakDto>> EndBreak(int id)
+        {
+            var breakEntity = await _context.Breaks.FindAsync(id);
+            if (breakEntity == null) return NotFound();
+
+            breakEntity.BreakEndTime = DateTime.Now;
+            breakEntity.BreakDurationMinutes =
+                (breakEntity.BreakEndTime.Value - breakEntity.BreakStartTime).TotalMinutes;
+
+            await _context.SaveChangesAsync();
+            return Ok(_mapper.Map<BreakDto>(breakEntity));
         }
     }
 }

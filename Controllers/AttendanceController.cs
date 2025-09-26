@@ -1,4 +1,7 @@
-﻿using EmployeeTracker.Models;
+﻿using AutoMapper;
+using EmployeeTracker.Datas;
+using EmployeeTracker.Dtos;
+using EmployeeTracker.Models;
 using EmployeeTracker.Repository;
 using EmployeeTracker.Services;
 using Microsoft.AspNetCore.Http;
@@ -10,16 +13,38 @@ namespace EmployeeTracker.Controllers
     [ApiController]
     public class AttendanceController : ControllerBase
     {
-        private readonly IGenericRepository<EmployeeTracker.Models.Attendance> _repo;
-        public AttendanceController(IGenericRepository<EmployeeTracker.Models.Attendance> repo) => _repo = repo;
+        private readonly EmployeeTrackerDbContext _context;
+        private readonly IMapper _mapper;
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll() => Ok(await _repo.GetAllAsync());
+        public AttendanceController(EmployeeTrackerDbContext context, IMapper mapper)
+        {
+            _context = context;
+            _mapper = mapper;
+        }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id) => Ok(await _repo.GetAsync(id));
+        [HttpPost("clock-in")]
+        public async Task<ActionResult<AttandanceDto>> ClockIn(CreateAttendanceDto dto)
+        {
+            var attendance = _mapper.Map<Attendance>(dto);
+            attendance.ClockIn = DateTime.Now;
+            attendance.Status = "Present";
 
-        [HttpPost]
-        public async Task<IActionResult> Create(EmployeeTracker.Models.Attendance a) => Ok(await _repo.AddAsync(a));
+            _context.Attendances.Add(attendance);
+            await _context.SaveChangesAsync();
+
+            return Ok(_mapper.Map<AttandanceDto>(attendance));
+        }
+
+        [HttpPost("clock-out/{id}")]
+        public async Task<ActionResult<AttandanceDto>> ClockOut(int id)
+        {
+            var attendance = await _context.Attendances.FindAsync(id);
+            if (attendance == null) return NotFound();
+
+            attendance.ClockOut = DateTime.Now;
+            await _context.SaveChangesAsync();
+
+            return Ok(_mapper.Map<AttandanceDto>(attendance));
+        }
     }
 }

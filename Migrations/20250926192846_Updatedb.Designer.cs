@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EmployeeTracker.Migrations
 {
     [DbContext(typeof(EmployeeTrackerDbContext))]
-    [Migration("20250926173256_UpempDb")]
-    partial class UpempDb
+    [Migration("20250926192846_Updatedb")]
+    partial class Updatedb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -126,7 +126,7 @@ namespace EmployeeTracker.Migrations
 
                     b.HasIndex("EmpId");
 
-                    b.ToTable("EmplTasks");
+                    b.ToTable("EmpTask");
                 });
 
             modelBuilder.Entity("EmployeeTracker.Models.Employee", b =>
