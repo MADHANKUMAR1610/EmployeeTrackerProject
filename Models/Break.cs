@@ -5,18 +5,17 @@ namespace EmployeeTracker.Models
 {
     public class Break
     {
-        [Key]
-        public int BreakId { get; set; }
-        [ForeignKey("WorkSession")]
-        public int SessionId { get; set; }
-
-        public WorkSession WorkSession { get; set; } = null!;
-
         
-        public DateTime BreakStartTime { get; set; }
-        
-        public DateTime? BreakEndTime { get; set; }
-        public double? BreakDurationHours { get; set; }
-    
+            public int Id { get; set; }
+            public int WorkSessionId { get; set; }
+            public WorkSession WorkSession { get; set; }
+
+            public DateTime BreakStartTime { get; set; }
+            public DateTime? BreakEndTime { get; set; }
+
+            // stored as minutes
+            public double BreakDurationMinutes { get; set; }
+        }
+
     }
-}
+

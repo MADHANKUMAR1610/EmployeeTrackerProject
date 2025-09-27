@@ -1,22 +1,25 @@
-﻿using EmployeeTracker.Models;
-using EmployeeTracker.Repository;
+﻿using EmployeeTracker.Datas;
+using EmployeeTracker.Models;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace EmployeeTracker.Services
 {
-    public class EmployeeService
+    public class EmployeeService : IEmployeeService
     {
-            private readonly IGenericRepository<Employee> _repo;
-            public EmployeeService(IGenericRepository<Employee> repo) => _repo = repo;
 
-            public Task<IEnumerable<Employee>> GetAllAsync() => _repo.GetAllAsync();
-            public Task<Employee> GetByIdAsync(int id) => _repo.GetByIdAsync(id);
-            public async Task<Employee> GetByEmailAsync(string email)
-            {
-                var all = await _repo.FindAsync(e => e.Mail.ToLower() == email.ToLower());
-                return all.FirstOrDefault()!;
-            }
-        public Task AddAsync(Employee e) => _repo.AddAsync(e);
-            public Task UpdateAsync(Employee e) => _repo.UpdateAsync(e);
-            public Task DeleteAsync(int id) => _repo.DeleteAsync(id);
+        private readonly EmployeeTrackerDbContext _ctx;
+        public EmployeeService(EmployeeTrackerDbContext ctx) => _ctx = ctx;
+
+        public async Task<Employee> AuthenticateAsync(string email, string password)
+        {
+            return await _ctx.Employees.FirstOrDefaultAsync(e => e.Mail == email && e.Password == password);
         }
+
+        public async Task<Employee> GetByIdAsync(int id)
+        {
+            return await _ctx.Employees.FindAsync(id);
+        }
+
+    }
 }

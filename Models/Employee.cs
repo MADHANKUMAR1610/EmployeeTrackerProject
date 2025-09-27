@@ -4,27 +4,28 @@ namespace EmployeeTracker.Models
 {
     public class Employee
     {
-        [Key]
-        public int EmployeeId { get; set; }
-        
-        public string EmployeeName { get; set; } = null!;
-        
-        public string Mail { get; set; } = null!;
+        public int Id { get; set; }
 
+<<<<<<< HEAD
         public byte[]?PasswordHash { get; set; } 
         public byte[]? PasswordSalt { get; set; }
+=======
+        [Required] public string Name { get; set; }
+        [Required] public string Mail { get; set; }
+>>>>>>> d560b33a1da19e566f201849d4e23c86bf0cede4
 
-        public string Role { get; set; } = null!;
+        // default password as Test@123
+        public string Password { get; set; } = "Test@123";
 
-        public string? Profile_pictureUrl { get; set; }
+        public string Role { get; set; } // e.g. Developer
+        public string ProfilePictureUrl { get; set; }
 
-        public ICollection<WorkSession>? WorkSessions {  get; set; }
-        public ICollection<Attendance>? Attendances{ get; set; }
-        public ICollection<LeaveRequest>? LeaveRequests{ get; set; }
-        public ICollection<LeaveBalance>? LeaveBalance{ get; set; }
-        public ICollection<EmpTask>? Tasks { get; set; }
-
-        
+        public ICollection<WorkSession> WorkSessions { get; set; }
+        public ICollection<Attendance> Attendances { get; set; }
+        public ICollection<EmpTask> TasksCreated { get; set; }
+        public ICollection<EmpTask> TasksAssigned { get; set; }
+        public ICollection<LeaveRequest> LeaveRequests { get; set; }
+        public ICollection<LeaveBalance> LeaveBalances { get; set; }
     }
 }
     

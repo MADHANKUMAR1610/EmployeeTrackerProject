@@ -1,49 +1,41 @@
 ﻿using EmployeeTracker.Models;
-using EmployeeTracker.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using EmployeeTracker.Repository;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace EmployeeTracker.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    
     public class EmployeeController : ControllerBase
     {
+        private readonly IGenericRepository<Employee> _repo;
+        public EmployeeController(IGenericRepository<Employee> repo) => _repo = repo;
 
-        private readonly EmployeeService _service;
-        public EmployeeController(EmployeeService service) => _service = service;
-
-        // Get all employees
         [HttpGet]
-        public async Task<IActionResult> GetAll() => Ok(await _service.GetAllAsync());
+        public async Task<IActionResult> GetAll() => Ok(await _repo.GetAllAsync());
 
-        // Get by id
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
-        {
-            var emp = await _service.GetByIdAsync(id);
-            if (emp == null) return NotFound();
-            return Ok(emp);
-        }
-        
+        public async Task<IActionResult> Get(int id) => Ok(await _repo.GetAsync(id));
 
+        [HttpPost]
+        public async Task<IActionResult> Create(Employee e) => Ok(await _repo.AddAsync(e));
 
-        // Update profile (employee may update their own details)
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] Employee e)
+        public async Task<IActionResult> Update(int id, Employee e)
         {
-            if (id != e.EmployeeId) return BadRequest();
-            await _service.UpdateAsync(e);
-            return NoContent();
+            var existing = await _repo.GetAsync(id);
+            if (existing == null) return NotFound();
+            e.Id = id;
+            await _repo.UpdateAsync(e);
+            return Ok(e);
         }
 
-        // Delete (if necessary)
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _service.DeleteAsync(id);
+            await _repo.DeleteAsync(id);
             return NoContent();
         }
     }

@@ -11,35 +11,31 @@ namespace EmployeeTracker.Controllers
     [Authorize]
     public class WorkSessionController : ControllerBase
     {
-        private readonly WorkSessionService _service;
-        public WorkSessionController(WorkSessionService service) => _service = service;
+        private readonly IWorkSessionService _ws;
+        public WorkSessionController(IWorkSessionService ws) => _ws = ws;
 
-        // Start session (clock-in)
-        // Example: POST /api/worksessions/start
-        // Body optional, but we will take employeeId from token optionally
-        [HttpPost("start")]
-        public async Task<IActionResult> StartSession([FromBody] StartSessionDto dto)
+        [HttpPost("clockin/{empId}")]
+        public async Task<IActionResult> ClockIn(int empId)
         {
-            var employeeId = dto?.EmployeeId ?? int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var session = await _service.StartSessionAsync(employeeId);
-            // When user clicks "Login" in UI this endpoint locks that time as LoginTime.
+            var session = await _ws.ClockInAsync(empId);
+            if (session == null) return BadRequest("Unable to create session");
             return Ok(session);
         }
 
-        // End session (clock-out)
-        // Example: POST /api/worksessions/end/{sessionId}
-        [HttpPost("end/{sessionId}")]
-        public async Task<IActionResult> EndSession(int sessionId)
+        [HttpPost("logout/{empId}")]
+        public async Task<IActionResult> Logout(int empId)
         {
-            var session = await _service.EndSessionAsync(sessionId);
-            if (session == null) return NotFound("Session not found or already ended.");
-            // When user clicks "Logout" in UI this endpoint locks LogoutTime and calculates total hours
+            var session = await _ws.ClockOutAsync(empId);
+            if (session == null) return BadRequest("No active session.");
             return Ok(session);
         }
 
-        [HttpGet("employee/{employeeId}")] public async Task<IActionResult> GetByEmployee(int employeeId) => Ok(await _service.GetByEmployeeAsync(employeeId));
-        [HttpGet("{id}")] public async Task<IActionResult> Get(int id) => Ok(await _service.GetByIdAsync(id));
-
-        public class StartSessionDto { public int? EmployeeId { get; set; } }
+        [HttpGet("active/{empId}")]
+        public async Task<IActionResult> GetActive(int empId)
+        {
+            var session = await _ws.GetActiveSessionAsync(empId);
+            if (session == null) return NotFound();
+            return Ok(session);
+        }
     }
 }

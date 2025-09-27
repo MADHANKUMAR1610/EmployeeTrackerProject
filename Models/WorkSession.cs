@@ -4,19 +4,17 @@ namespace EmployeeTracker.Models
 {
     public class WorkSession
     {
-        [Key]
-       public int SessionId { get; set; }
-        
-        public int EmployeeId { get; set; }
-        public Employee Employee { get; set; } = null!;
-        public DateTime LoginTime { get; set; }
+        public int Id { get; set; }
+        public int EmpId { get; set; }
+        public Employee Employee { get; set; }
 
-        
+        public DateTime LoginTime { get; set; }
         public DateTime? LogoutTime { get; set; }
-        
+
+        // stored as hours (double). Calculated on logout.
         public double TotalWorkedHours { get; set; }
 
-        public ICollection<Break>? Breaks { get; set; }
+        public ICollection<Break> Breaks { get; set; }
     }
 }
 
