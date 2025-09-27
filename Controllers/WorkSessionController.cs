@@ -1,4 +1,8 @@
-﻿using EmployeeTracker.Services;
+﻿using AutoMapper;
+using EmployeeTracker.Datas;
+using EmployeeTracker.Dtos;
+using EmployeeTracker.Models;
+using EmployeeTracker.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,31 +15,36 @@ namespace EmployeeTracker.Controllers
     [Authorize]
     public class WorkSessionController : ControllerBase
     {
-        private readonly IWorkSessionService _ws;
-        public WorkSessionController(IWorkSessionService ws) => _ws = ws;
+        private readonly EmployeeTrackerDbContext _context;
+        private readonly IMapper _mapper;
 
-        [HttpPost("clockin/{empId}")]
-        public async Task<IActionResult> ClockIn(int empId)
+        public WorkSessionController(EmployeeTrackerDbContext context, IMapper mapper)
         {
-            var session = await _ws.ClockInAsync(empId);
-            if (session == null) return BadRequest("Unable to create session");
-            return Ok(session);
+            _context = context;
+            _mapper = mapper;
         }
 
-        [HttpPost("logout/{empId}")]
-        public async Task<IActionResult> Logout(int empId)
+        [HttpPost("login")]
+        public async Task<ActionResult<WorkSessionDto>> StartSession(CreateWorkSessionDto dto)
         {
-            var session = await _ws.ClockOutAsync(empId);
-            if (session == null) return BadRequest("No active session.");
-            return Ok(session);
+            var session = _mapper.Map<WorkSession>(dto);
+            _context.WorkSessions.Add(session);
+            await _context.SaveChangesAsync();
+
+            return Ok(_mapper.Map<WorkSessionDto>(session));
         }
 
-        [HttpGet("active/{empId}")]
-        public async Task<IActionResult> GetActive(int empId)
+        [HttpPost("logout/{id}")]
+        public async Task<ActionResult<WorkSessionDto>> EndSession(int id)
         {
-            var session = await _ws.GetActiveSessionAsync(empId);
+            var session = await _context.WorkSessions.FindAsync(id);
             if (session == null) return NotFound();
-            return Ok(session);
+
+            session.LogoutTime = DateTime.Now;
+            session.TotalWorkedHours = (session.LogoutTime.Value - session.LoginTime).TotalHours;
+
+            await _context.SaveChangesAsync();
+            return Ok(_mapper.Map<WorkSessionDto>(session));
         }
     }
 }

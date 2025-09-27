@@ -1,6 +1,10 @@
-﻿using EmployeeTracker.Models;
+﻿using AutoMapper;
+using EmployeeTracker.Datas;
+using EmployeeTracker.Dtos;
+using EmployeeTracker.Models;
 using EmployeeTracker.Repository;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace EmployeeTracker.Controllers
@@ -10,33 +14,39 @@ namespace EmployeeTracker.Controllers
     
     public class EmployeeController : ControllerBase
     {
-        private readonly IGenericRepository<Employee> _repo;
-        public EmployeeController(IGenericRepository<Employee> repo) => _repo = repo;
+        private readonly EmployeeTrackerDbContext _context;
+        private readonly IMapper _mapper;
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll() => Ok(await _repo.GetAllAsync());
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id) => Ok(await _repo.GetAsync(id));
-
-        [HttpPost]
-        public async Task<IActionResult> Create(Employee e) => Ok(await _repo.AddAsync(e));
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, Employee e)
+        public EmployeeController(EmployeeTrackerDbContext context, IMapper mapper)
         {
-            var existing = await _repo.GetAsync(id);
-            if (existing == null) return NotFound();
-            e.Id = id;
-            await _repo.UpdateAsync(e);
-            return Ok(e);
+            _context = context;
+            _mapper = mapper;
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<EmployeeDto>>> GetEmployees()
         {
-            await _repo.DeleteAsync(id);
-            return NoContent();
+            var employees = await _context.Employees.ToListAsync();
+            return Ok(_mapper.Map<IEnumerable<EmployeeDto>>(employees));
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<EmployeeDto>> GetEmployee(int id)
+        {
+            var employee = await _context.Employees.FindAsync(id);
+            if (employee == null) return NotFound();
+
+            return Ok(_mapper.Map<EmployeeDto>(employee));
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<EmployeeDto>> CreateEmployee(CreateEmployeeDto dto)
+        {
+            var employee = _mapper.Map<Employee>(dto);
+            _context.Employees.Add(employee);
+            await _context.SaveChangesAsync();
+
+            return Ok(_mapper.Map<EmployeeDto>(employee));
         }
     }
 }

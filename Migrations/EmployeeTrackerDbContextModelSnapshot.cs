@@ -123,7 +123,7 @@ namespace EmployeeTracker.Migrations
 
                     b.HasIndex("EmpId");
 
-                    b.ToTable("EmplTasks");
+                    b.ToTable("EmpTask");
                 });
 
             modelBuilder.Entity("EmployeeTracker.Models.Employee", b =>
