@@ -33,44 +33,6 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Apply migrations & seed
-using (var scope = app.Services.CreateScope())
-{
-    var ctx = scope.ServiceProvider.GetRequiredService<EmployeeTrackerDbContext>();
-    ctx.Database.Migrate();
-
-    // Simple seeding
-    if (!ctx.Employees.Any())
-    {
-        var emp = new EmployeeTracker.Models.Employee
-        {
-            Name = "Default User",
-            Mail = "user@example.com",
-            Password = "Test@123",
-            Role = "Developer",
-            ProfilePictureUrl = null
-        };
-        ctx.Employees.Add(emp);
-        ctx.SaveChanges();
-
-        // seed some leave balances
-        ctx.LeaveBalances.Add(new EmployeeTracker.Models.LeaveBalance
-        {
-            EmpId = emp.Id,
-            LeaveType = EmployeeTracker.Models.LeaveType.Casual,
-            TotalLeave = 12,
-            UsedLeave = 0
-        });
-        ctx.LeaveBalances.Add(new EmployeeTracker.Models.LeaveBalance
-        {
-            EmpId = emp.Id,
-            LeaveType = EmployeeTracker.Models.LeaveType.Medical,
-            TotalLeave = 12,
-            UsedLeave = 0
-        });
-        ctx.SaveChanges();
-    }
-}
 
 if (app.Environment.IsDevelopment())
 {
