@@ -15,10 +15,8 @@
 
     public enum TaskStatus
     {
-        Todo,
-        InProgress,
-        Done,
-        Blocked
+        Pending = 0,
+        Completed = 1
     }
 
     public enum TaskPriority

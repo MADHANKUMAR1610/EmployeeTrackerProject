@@ -75,8 +75,28 @@ namespace EmployeeTracker.Services
                 LeaveType = lb.LeaveType.ToString(),
                 TotalLeave = lb.TotalLeave,
                 UsedLeave = lb.UsedLeave,
-                
+
             });
         }
+        public async Task<IEnumerable<LeaveTypeSummaryDto>> GetLeaveTypeSummaryAsync(int empId)
+        {
+            var balances = await _ctx.LeaveBalances
+                .Where(lb => lb.EmpId == empId)
+                .Select(lb => new LeaveTypeSummaryDto
+                {
+                    LeaveType = lb.LeaveType.ToString(),
+                    TotalAllocated = lb.TotalLeave,
+                    Used = lb.UsedLeave
+                })
+                .ToListAsync();
+
+            return balances;
+        }
+        public async Task<int> GetPendingLeaveCountAsync(int empId)
+        {
+            return await _ctx.LeaveRequests
+                .CountAsync(l => l.EmpId == empId && l.Status == Models.LeaveStatus.Pending);
+        }
+
     }
 }
