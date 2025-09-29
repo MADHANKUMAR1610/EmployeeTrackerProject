@@ -42,7 +42,8 @@ namespace EmployeeTracker.Services
 
             br.BreakEndTime = DateTime.UtcNow;
             var minutes = (br.BreakEndTime.Value - br.BreakStartTime).TotalMinutes;
-            br.BreakDurationMinutes = Math.Round(minutes, 2);
+            br.BreakDurationMinutes = Math.Round((br.BreakEndTime.Value - br.BreakStartTime).TotalMinutes, 2);
+
 
             _ctx.Breaks.Update(br);
             await _ctx.SaveChangesAsync();

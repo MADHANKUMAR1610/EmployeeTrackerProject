@@ -3,6 +3,7 @@ using EmployeeTracker.Datas;
 using EmployeeTracker.Dtos;
 using EmployeeTracker.Models;
 using EmployeeTracker.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +13,7 @@ namespace EmployeeTracker.Controllers
     [Route("api/[controller]")]
     [ApiController]
     
+
     public class EmployeeController : ControllerBase
     {
         private readonly EmployeeTrackerDbContext _context;

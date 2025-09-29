@@ -10,7 +10,7 @@ namespace EmployeeTracker.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+   
     public class BreakController : ControllerBase
     {
         private readonly EmployeeTrackerDbContext _context;

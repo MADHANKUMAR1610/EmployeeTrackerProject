@@ -5,6 +5,8 @@ namespace EmployeeTracker.Models
 {
     public class LeaveBalance
     {
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public int EmpId { get; set; }
         public Employee Employee { get; set; }

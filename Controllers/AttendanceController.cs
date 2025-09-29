@@ -4,6 +4,7 @@ using EmployeeTracker.Dtos;
 using EmployeeTracker.Models;
 using EmployeeTracker.Repository;
 using EmployeeTracker.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,6 +12,7 @@ namespace EmployeeTracker.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+   
     public class AttendanceController : ControllerBase
     {
         private readonly EmployeeTrackerDbContext _context;
