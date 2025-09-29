@@ -60,6 +60,22 @@ namespace EmployeeTracker.Controllers
 
             return Ok(summary); // already LeaveSummaryDto
         }
+        [HttpGet("summarydisplay/{empId}")]
+        public async Task<ActionResult<IEnumerable<LeaveTypeSummaryDto>>> GetLeaveTypeSummary(int empId)
+        {
+            var summary = await _leaveService.GetLeaveTypeSummaryAsync(empId);
+            return Ok(summary);
+        }
+
+        // Get pending leave count for dashboard
+        [HttpGet("pending/count/{empId}")]
+        public async Task<IActionResult> GetPendingLeaveCount(int empId)
+        {
+            var count = await _leaveService.GetPendingLeaveCountAsync(empId);
+            return Ok(count);
+        }
+
+
     }
 }
 

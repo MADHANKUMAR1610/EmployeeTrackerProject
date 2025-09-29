@@ -20,7 +20,7 @@ namespace EmployeeTracker.Models
         public DateTime? StartDate { get; set; }
         public DateTime? DueDate { get; set; }
 
-        public TaskStatus Status { get; set; } = TaskStatus.Todo;
+        public TaskStatus Status { get; set; } = TaskStatus.Pending;
         public TaskPriority Priority { get; set; } = TaskPriority.Medium;
         public string Tag { get; set; }
     }
