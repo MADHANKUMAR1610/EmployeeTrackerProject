@@ -3,7 +3,7 @@
     public class AttandanceCalenderDto
     {
         public DateTime Date { get; set; }
-        public string Status { get; set; } = ""; // Present, Absent, Leave
+        public string Status { get; set; }  // Present, Absent, Leave
     }
 
     public class AttendanceCalendarDto

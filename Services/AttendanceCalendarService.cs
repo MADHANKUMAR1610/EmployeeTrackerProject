@@ -13,6 +13,7 @@ namespace EmployeeTracker.Services
         {
             _ctx = ctx;
         }
+
         public async Task<AttendanceCalendarDto> GetCalendarAsync(int empId, int month, int year)
         {
             var start = new DateTime(year, month, 1);
@@ -24,23 +25,29 @@ namespace EmployeeTracker.Services
 
             var leaves = await _ctx.LeaveRequests
                 .Where(l => l.EmpId == empId && l.Status == LeaveStatus.Approved
- &&
-                            l.StartDate <= end && l.EndDate >= start)
+                         && l.StartDate <= end && l.EndDate >= start)
                 .ToListAsync();
 
             var days = new List<AttandanceCalenderDto>();
 
             for (var date = start; date <= end; date = date.AddDays(1))
             {
-                var status = "Absent";
+                // Default → NotMarked instead of Absent
+                var status = "NotMarked";
 
-                if (attendances.Any(a => a.Date == date.Date))
+                // If employee has attendance record → Present
+                if (attendances.Any(a => a.Date.Date == date.Date))
                     status = "Present";
 
+                // If employee is on leave → Leave (overrides present if overlapping)
                 if (leaves.Any(l => l.StartDate <= date && l.EndDate >= date))
-                    status = "Leave";
+                    status = "Absent";
 
-                days.Add(new AttandanceCalenderDto { Date = date, Status = status });
+                days.Add(new AttandanceCalenderDto
+                {
+                    Date = date,
+                    Status = status
+                });
             }
 
             return new AttendanceCalendarDto
