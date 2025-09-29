@@ -42,6 +42,15 @@ namespace EmployeeTracker.Datas
                     ProfilePictureUrl = "https://placehold.co/100x100"
                 }
             );
+            builder.Entity<LeaveBalance>().HasData(
+            new LeaveBalance { Id = 1, EmpId = 1, LeaveType = LeaveType.Casual, TotalLeave = 12, UsedLeave = 0 },
+            new LeaveBalance { Id = 2, EmpId = 1, LeaveType = LeaveType.Medical, TotalLeave = 12, UsedLeave = 0 },
+            new LeaveBalance { Id = 3, EmpId = 1, LeaveType = LeaveType.Permission, TotalLeave = 5, UsedLeave = 0 },
+            new LeaveBalance { Id = 4, EmpId = 1, LeaveType = LeaveType.WeekOff, TotalLeave = 52, UsedLeave = 0 },
+                
+            new LeaveBalance { Id = 5, EmpId = 1, LeaveType = LeaveType.Composition, TotalLeave = 52, UsedLeave = 0 }
+        );
+
 
             base.OnModelCreating(builder);
         }

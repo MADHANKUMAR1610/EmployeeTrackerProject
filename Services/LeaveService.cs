@@ -13,7 +13,7 @@ namespace EmployeeTracker.Services
         private readonly EmployeeTrackerDbContext _ctx;
         public LeaveService(EmployeeTrackerDbContext ctx) => _ctx = ctx;
 
-        // Apply leave
+        // ---------------- Apply leave ----------------
         public async Task<LeaveRequest> ApplyLeaveAsync(LeaveRequest request)
         {
             _ctx.LeaveRequests.Add(request);
@@ -21,7 +21,7 @@ namespace EmployeeTracker.Services
             return request;
         }
 
-        // Approve leave
+        // ---------------- Approve leave ----------------
         public async Task<LeaveRequest> ApproveLeaveAsync(int leaveRequestId)
         {
             var req = await _ctx.LeaveRequests.FindAsync(leaveRequestId);
@@ -33,20 +33,31 @@ namespace EmployeeTracker.Services
             var balance = await _ctx.LeaveBalances
                 .FirstOrDefaultAsync(lb => lb.EmpId == req.EmpId && lb.LeaveType == req.LeaveType);
 
+            // ✅ Initialize leave balance if not present
             if (balance == null)
             {
                 balance = new LeaveBalance
                 {
                     EmpId = req.EmpId,
                     LeaveType = req.LeaveType,
-                    TotalLeave = 12,
+                    TotalLeave = req.LeaveType switch
+                    {
+                        LeaveType.Casual => 12,
+                        LeaveType.Medical => 12,
+                        LeaveType.Permission => 5,
+                        LeaveType.WeekOff => 52,
+                        LeaveType.Composition => 5,
+                        _ => 0
+                    },
                     UsedLeave = 0
                 };
                 _ctx.LeaveBalances.Add(balance);
             }
 
+            // ✅ Deduct from correct leave type
             balance.UsedLeave += days;
-            if (balance.UsedLeave > balance.TotalLeave) balance.UsedLeave = balance.TotalLeave;
+            if (balance.UsedLeave > balance.TotalLeave)
+                balance.UsedLeave = balance.TotalLeave;
 
             req.Status = LeaveStatus.Approved;
             _ctx.LeaveRequests.Update(req);
@@ -55,7 +66,7 @@ namespace EmployeeTracker.Services
             return req;
         }
 
-        // Get leaves by employee
+        // ---------------- Get leaves by employee ----------------
         public async Task<IEnumerable<LeaveRequest>> GetByEmpAsync(int empId)
         {
             return await _ctx.LeaveRequests
@@ -63,7 +74,7 @@ namespace EmployeeTracker.Services
                 .ToListAsync();
         }
 
-        // 🔹 Get leave summary (for attendance page)
+        // ---------------- Get leave summary (for attendance page) ----------------
         public async Task<IEnumerable<LeaveSummaryDto>> GetLeaveSummaryAsync(int empId)
         {
             var balances = await _ctx.LeaveBalances
@@ -74,10 +85,11 @@ namespace EmployeeTracker.Services
             {
                 LeaveType = lb.LeaveType.ToString(),
                 TotalLeave = lb.TotalLeave,
-                UsedLeave = lb.UsedLeave,
-
+                UsedLeave = lb.UsedLeave
             });
         }
+
+        // ---------------- Get leave summary (for dashboard display) ----------------
         public async Task<IEnumerable<LeaveTypeSummaryDto>> GetLeaveTypeSummaryAsync(int empId)
         {
             var balances = await _ctx.LeaveBalances
@@ -92,11 +104,8 @@ namespace EmployeeTracker.Services
 
             return balances;
         }
-        public async Task<int> GetPendingLeaveCountAsync(int empId)
-        {
-            return await _ctx.LeaveRequests
-                .CountAsync(l => l.EmpId == empId && l.Status == Models.LeaveStatus.Pending);
-        }
+
+
 
     }
 }
