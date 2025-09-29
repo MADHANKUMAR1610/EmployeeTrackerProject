@@ -6,13 +6,8 @@ namespace EmployeeTracker.Models
     {
         public int Id { get; set; }
 
-<<<<<<< HEAD
-        public byte[]?PasswordHash { get; set; } 
-        public byte[]? PasswordSalt { get; set; }
-=======
         [Required] public string Name { get; set; }
         [Required] public string Mail { get; set; }
->>>>>>> d560b33a1da19e566f201849d4e23c86bf0cede4
 
         // default password as Test@123
         public string Password { get; set; } = "Test@123";
@@ -28,4 +23,3 @@ namespace EmployeeTracker.Models
         public ICollection<LeaveBalance> LeaveBalances { get; set; }
     }
 }
-    
