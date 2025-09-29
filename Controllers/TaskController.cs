@@ -11,7 +11,7 @@ namespace EmployeeTracker.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    
     public class TaskController : ControllerBase
     {
         private readonly EmployeeTrackerDbContext _context;

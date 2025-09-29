@@ -6,7 +6,7 @@
         public int WorkSessionId { get; set; }
         public DateTime BreakStartTime { get; set; }
         public DateTime? BreakEndTime { get; set; }
-        public double BreakTotalDuration { get; set; }
+        public double BreakDurationMinutes { get; set; }
     }
 
     public class CreateBreakDto

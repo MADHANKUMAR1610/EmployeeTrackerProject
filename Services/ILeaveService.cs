@@ -1,4 +1,5 @@
-﻿using EmployeeTracker.Models;
+﻿using EmployeeTracker.Dtos;
+using EmployeeTracker.Models;
 
 namespace EmployeeTracker.Services
 {
@@ -7,5 +8,6 @@ namespace EmployeeTracker.Services
         Task<LeaveRequest> ApplyLeaveAsync(LeaveRequest request);
         Task<LeaveRequest> ApproveLeaveAsync(int leaveRequestId);
         Task<IEnumerable<LeaveRequest>> GetByEmpAsync(int empId);
+        Task<IEnumerable<LeaveSummaryDto>> GetLeaveSummaryAsync(int empId);
     }
 }
