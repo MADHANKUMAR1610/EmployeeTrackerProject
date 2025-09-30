@@ -51,12 +51,11 @@ namespace EmployeeTracker.Services
                 {
                     status = "Present";
                 }
-                // ✅ Absent if leave applied
+                // ✅ Absent if leave approved
                 else if (leaveRequests.Any(lr => lr.StartDate.Date <= date && lr.EndDate.Date >= date))
                 {
                     status = "Absent";
                 }
-                
                 days.Add(new AttandanceCalenderDto
                 {
                     Date = date,
