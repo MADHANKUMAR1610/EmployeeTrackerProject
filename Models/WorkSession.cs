@@ -10,6 +10,7 @@ namespace EmployeeTracker.Models
 
         public DateTime LoginTime { get; set; }
         public DateTime? LogoutTime { get; set; }
+        
 
         // stored as hours (double). Calculated on logout.
         public double TotalWorkedHours { get; set; }

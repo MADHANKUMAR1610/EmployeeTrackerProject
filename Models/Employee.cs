@@ -16,7 +16,7 @@ namespace EmployeeTracker.Models
         public string ProfilePictureUrl { get; set; }
 
         public ICollection<WorkSession> WorkSessions { get; set; }
-        public ICollection<Attendance> Attendances { get; set; }
+        
         public ICollection<EmpTask> TasksCreated { get; set; }
         public ICollection<EmpTask> TasksAssigned { get; set; }
         public ICollection<LeaveRequest> LeaveRequests { get; set; }

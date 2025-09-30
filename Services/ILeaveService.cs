@@ -8,7 +8,7 @@ namespace EmployeeTracker.Services
         Task<LeaveRequest> ApplyLeaveAsync(LeaveRequest request);
         Task<LeaveRequest> ApproveLeaveAsync(int leaveRequestId);
         Task<IEnumerable<LeaveRequest>> GetByEmpAsync(int empId);
-        Task<IEnumerable<LeaveSummaryDto>> GetLeaveSummaryAsync(int empId);
+        
         Task<IEnumerable<LeaveTypeSummaryDto>> GetLeaveTypeSummaryAsync(int empId);
        
 

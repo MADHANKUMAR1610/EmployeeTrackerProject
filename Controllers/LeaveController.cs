@@ -51,15 +51,7 @@ namespace EmployeeTracker.Controllers
         }
 
         // ---------------- Get Leave Summary for Attendance Page ----------------
-        [HttpGet("summary/{empId}")]
-        public async Task<ActionResult<IEnumerable<LeaveSummaryDto>>> GetSummary(int empId)
-        {
-            var summary = await _leaveService.GetLeaveSummaryAsync(empId);
-            if (summary == null || !summary.Any())
-                return NotFound("No leave balances found for this employee.");
-
-            return Ok(summary); // already LeaveSummaryDto
-        }
+        
         [HttpGet("summarydisplay/{empId}")]
         public async Task<ActionResult<IEnumerable<LeaveTypeSummaryDto>>> GetLeaveTypeSummary(int empId)
         {

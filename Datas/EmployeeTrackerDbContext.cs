@@ -9,7 +9,7 @@ namespace EmployeeTracker.Datas
 
         public DbSet<Employee> Employees { get; set; }
         public DbSet<WorkSession> WorkSessions { get; set; }
-        public DbSet<Attendance> Attendances { get; set; }
+        
         public DbSet<Break> Breaks { get; set; }
         public DbSet<EmpTask> EmpTask { get; set; }
         public DbSet<LeaveRequest> LeaveRequests { get; set; }

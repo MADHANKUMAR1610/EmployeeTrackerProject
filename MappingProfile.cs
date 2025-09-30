@@ -15,9 +15,7 @@ namespace EmployeeTracker
             CreateMap<WorkSession, WorkSessionDto>();
             CreateMap<CreateWorkSessionDto, WorkSession>();
 
-            // Attendance
-            CreateMap<Attendance, AttandanceDto>();
-            CreateMap<CreateAttendanceDto, Attendance>();
+        
 
             // Break
             CreateMap<Break, BreakDto>();
