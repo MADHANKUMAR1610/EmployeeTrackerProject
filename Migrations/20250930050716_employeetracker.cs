@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace EmployeeTracker.Migrations
 {
     /// <inheritdoc />
-    public partial class EmpDb : Migration
+    public partial class employeetracker : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -179,6 +181,18 @@ namespace EmployeeTracker.Migrations
                 table: "Employees",
                 columns: new[] { "Id", "Mail", "Name", "Password", "ProfilePictureUrl", "Role" },
                 values: new object[] { 1, "test@example.com", "Test User", "Test@123", "https://placehold.co/100x100", "Developer" });
+
+            migrationBuilder.InsertData(
+                table: "LeaveBalances",
+                columns: new[] { "Id", "EmpId", "EmployeeId", "LeaveType", "TotalLeave", "UsedLeave" },
+                values: new object[,]
+                {
+                    { 1, 1, null, 0, 12, 0 },
+                    { 2, 1, null, 1, 12, 0 },
+                    { 3, 1, null, 4, 5, 0 },
+                    { 4, 1, null, 3, 52, 0 },
+                    { 5, 1, null, 2, 52, 0 }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Attendances_EmployeeId",

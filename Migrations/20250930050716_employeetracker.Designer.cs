@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EmployeeTracker.Migrations
 {
     [DbContext(typeof(EmployeeTrackerDbContext))]
-    [Migration("20250929102007_EmpDb")]
-    partial class EmpDb
+    [Migration("20250930050716_employeetracker")]
+    partial class employeetracker
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -198,6 +198,48 @@ namespace EmployeeTracker.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.ToTable("LeaveBalances");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            EmpId = 1,
+                            LeaveType = 0,
+                            TotalLeave = 12,
+                            UsedLeave = 0
+                        },
+                        new
+                        {
+                            Id = 2,
+                            EmpId = 1,
+                            LeaveType = 1,
+                            TotalLeave = 12,
+                            UsedLeave = 0
+                        },
+                        new
+                        {
+                            Id = 3,
+                            EmpId = 1,
+                            LeaveType = 4,
+                            TotalLeave = 5,
+                            UsedLeave = 0
+                        },
+                        new
+                        {
+                            Id = 4,
+                            EmpId = 1,
+                            LeaveType = 3,
+                            TotalLeave = 52,
+                            UsedLeave = 0
+                        },
+                        new
+                        {
+                            Id = 5,
+                            EmpId = 1,
+                            LeaveType = 2,
+                            TotalLeave = 52,
+                            UsedLeave = 0
+                        });
                 });
 
             modelBuilder.Entity("EmployeeTracker.Models.LeaveRequest", b =>
