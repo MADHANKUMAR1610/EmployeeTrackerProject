@@ -31,20 +31,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 // Add CORS policy
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowReactApp",
-        policy =>
-        {
-            policy.WithOrigins("http://localhost:5173/") // your React app URL
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        });
-});
+
 
 var app = builder.Build();
-// Use CORS before app.UseAuthorization()
-app.UseCors("AllowReactApp"); 
 
 
 if (app.Environment.IsDevelopment())
