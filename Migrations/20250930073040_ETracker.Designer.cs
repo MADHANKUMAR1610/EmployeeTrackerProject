@@ -12,13 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EmployeeTracker.Migrations
 {
     [DbContext(typeof(EmployeeTrackerDbContext))]
-<<<<<<<< HEAD:Migrations/20250930050716_employeetracker.Designer.cs
-    [Migration("20250930050716_employeetracker")]
-    partial class employeetracker
-========
-    [Migration("20250930052400_Employee")]
-    partial class Employee
->>>>>>>> 667ca7b73946c5e2b34027312e99bd3c1c063f0f:Migrations/20250930052400_Employee.Designer.cs
+    [Migration("20250930073040_ETracker")]
+    partial class ETracker
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -29,39 +24,6 @@ namespace EmployeeTracker.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("EmployeeTracker.Models.Attendance", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("ClockIn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("ClockOut")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("EmpId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("EmployeeId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.ToTable("Attendances");
-                });
 
             modelBuilder.Entity("EmployeeTracker.Models.Break", b =>
                 {
@@ -316,15 +278,6 @@ namespace EmployeeTracker.Migrations
                     b.ToTable("WorkSessions");
                 });
 
-            modelBuilder.Entity("EmployeeTracker.Models.Attendance", b =>
-                {
-                    b.HasOne("EmployeeTracker.Models.Employee", "Employee")
-                        .WithMany("Attendances")
-                        .HasForeignKey("EmployeeId");
-
-                    b.Navigation("Employee");
-                });
-
             modelBuilder.Entity("EmployeeTracker.Models.Break", b =>
                 {
                     b.HasOne("EmployeeTracker.Models.WorkSession", "WorkSession")
@@ -383,8 +336,6 @@ namespace EmployeeTracker.Migrations
 
             modelBuilder.Entity("EmployeeTracker.Models.Employee", b =>
                 {
-                    b.Navigation("Attendances");
-
                     b.Navigation("LeaveBalances");
 
                     b.Navigation("LeaveRequests");

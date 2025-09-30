@@ -22,39 +22,6 @@ namespace EmployeeTracker.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("EmployeeTracker.Models.Attendance", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("ClockIn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("ClockOut")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("EmpId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("EmployeeId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.ToTable("Attendances");
-                });
-
             modelBuilder.Entity("EmployeeTracker.Models.Break", b =>
                 {
                     b.Property<int>("Id")
@@ -308,15 +275,6 @@ namespace EmployeeTracker.Migrations
                     b.ToTable("WorkSessions");
                 });
 
-            modelBuilder.Entity("EmployeeTracker.Models.Attendance", b =>
-                {
-                    b.HasOne("EmployeeTracker.Models.Employee", "Employee")
-                        .WithMany("Attendances")
-                        .HasForeignKey("EmployeeId");
-
-                    b.Navigation("Employee");
-                });
-
             modelBuilder.Entity("EmployeeTracker.Models.Break", b =>
                 {
                     b.HasOne("EmployeeTracker.Models.WorkSession", "WorkSession")
@@ -375,8 +333,6 @@ namespace EmployeeTracker.Migrations
 
             modelBuilder.Entity("EmployeeTracker.Models.Employee", b =>
                 {
-                    b.Navigation("Attendances");
-
                     b.Navigation("LeaveBalances");
 
                     b.Navigation("LeaveRequests");

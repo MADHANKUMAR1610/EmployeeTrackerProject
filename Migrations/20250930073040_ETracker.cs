@@ -8,11 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace EmployeeTracker.Migrations
 {
     /// <inheritdoc />
-<<<<<<<< HEAD:Migrations/20250930050716_employeetracker.cs
-    public partial class employeetracker : Migration
-========
-    public partial class Employee : Migration
->>>>>>>> 667ca7b73946c5e2b34027312e99bd3c1c063f0f:Migrations/20250930052400_Employee.cs
+    public partial class ETracker : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -32,29 +28,6 @@ namespace EmployeeTracker.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Employees", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Attendances",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    EmpId = table.Column<int>(type: "int", nullable: false),
-                    EmployeeId = table.Column<int>(type: "int", nullable: true),
-                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ClockIn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ClockOut = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Attendances", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Attendances_Employees_EmployeeId",
-                        column: x => x.EmployeeId,
-                        principalTable: "Employees",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -199,11 +172,6 @@ namespace EmployeeTracker.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Attendances_EmployeeId",
-                table: "Attendances",
-                column: "EmployeeId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Breaks_WorkSessionId",
                 table: "Breaks",
                 column: "WorkSessionId");
@@ -237,9 +205,6 @@ namespace EmployeeTracker.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Attendances");
-
             migrationBuilder.DropTable(
                 name: "Breaks");
 
