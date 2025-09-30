@@ -19,9 +19,9 @@ namespace EmployeeTracker.Services
             var start = new DateTime(year, month, 1);
             var end = start.AddMonths(1).AddDays(-1);
 
-            var attendances = await _ctx.Attendances
-                .Where(a => a.EmpId == empId && a.Date >= start && a.Date <= end)
-                .ToListAsync();
+            var attendances = await _ctx.WorkSessions
+           .Where(ws => ws.EmpId == empId && ws.LoginTime >= start && ws.LoginTime <= end)
+            .ToListAsync();
 
             var leaves = await _ctx.LeaveRequests
                 .Where(l => l.EmpId == empId && l.Status == LeaveStatus.Approved
@@ -36,7 +36,7 @@ namespace EmployeeTracker.Services
                 var status = "NotMarked";
 
                 // If employee has attendance record → Present
-                if (attendances.Any(a => a.Date.Date == date.Date))
+                if (attendances.Any(a => a.LoginTime.Date == date.Date))
                     status = "Present";
 
                 // If employee is on leave → Leave (overrides present if overlapping)

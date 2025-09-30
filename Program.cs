@@ -17,7 +17,7 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IWorkSessionService, WorkSessionService>();
 builder.Services.AddScoped<IBreakService, BreakService>();
-builder.Services.AddScoped<IAttendanceService, AttendanceService>();
+
 builder.Services.AddScoped<ITaskService, TaskService>();
 
 builder.Services.AddScoped<ILeaveService, LeaveService>();

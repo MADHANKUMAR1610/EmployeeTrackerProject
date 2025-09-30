@@ -13,7 +13,7 @@ namespace EmployeeTracker.Services
 
         public async Task<WorkSession> ClockInAsync(int empId)
         {
-            // create new session with LoginTime = now
+
             var session = new WorkSession
             {
                 EmpId = empId,
@@ -21,27 +21,29 @@ namespace EmployeeTracker.Services
             };
             _ctx.WorkSessions.Add(session);
 
-            // also add or update Attendance for today
+           
             var today = DateTime.UtcNow.Date;
-            var attendance = await _ctx.Attendances.FirstOrDefaultAsync(a => a.EmpId == empId && a.Date == today);
-            if (attendance == null)
+            var workSession = await _ctx.WorkSessions
+                .FirstOrDefaultAsync(ws => ws.EmpId == empId && ws.LoginTime.Date == today);
+
+            if (workSession == null)
             {
-                attendance = new Attendance
+               
+                workSession = new WorkSession
                 {
                     EmpId = empId,
-                    Date = today,
-                    ClockIn = DateTime.UtcNow,
+                    LoginTime = DateTime.UtcNow,
                     Status = "Present"
                 };
-                _ctx.Attendances.Add(attendance);
+                _ctx.WorkSessions.Add(workSession);
             }
             else
             {
-                attendance.ClockIn = DateTime.UtcNow;
-                attendance.Status = "Present";
-                _ctx.Attendances.Update(attendance);
+                
+                workSession.LoginTime = DateTime.UtcNow;
+                workSession.Status = "Present";
+                _ctx.WorkSessions.Update(workSession);
             }
-
             await _ctx.SaveChangesAsync();
             return session;
         }
@@ -58,25 +60,30 @@ namespace EmployeeTracker.Services
 
             session.LogoutTime = DateTime.UtcNow;
 
-            // total worked hours = difference between login and logout minus breaks
+           
             var totalMinutes = (session.LogoutTime.Value - session.LoginTime).TotalMinutes;
-            var breakMinutes = session.Breaks?.Where(b => b.BreakEndTime != null).Sum(b => b.BreakDurationMinutes) ?? 0;
+            var breakMinutes = session.Breaks
+            .Where(b => b.BreakEndTime != null)
+            .Sum(b => (double?)b.BreakDurationMinutes) ?? 0;
             var workedMinutes = Math.Max(0, totalMinutes - breakMinutes);
             session.TotalWorkedHours = Math.Round(workedMinutes / 60.0, 2);
 
-            // update attendance clock out
+            
             var today = session.LoginTime.Date;
-            var attendance = await _ctx.Attendances.FirstOrDefaultAsync(a => a.EmpId == empId && a.Date == today);
-            if (attendance != null)
+            var workSession = await _ctx.WorkSessions
+                .FirstOrDefaultAsync(ws => ws.EmpId == empId && ws.LoginTime.Date == today);
+
+            if (workSession != null)
             {
-                attendance.ClockOut = session.LogoutTime;
-                _ctx.Attendances.Update(attendance);
+                workSession.LogoutTime = session.LogoutTime;
+                workSession.TotalWorkedHours = session.TotalWorkedHours;
+                _ctx.WorkSessions.Update(workSession);
             }
 
-            _ctx.WorkSessions.Update(session);
             await _ctx.SaveChangesAsync();
             return session;
         }
+
 
         public async Task<WorkSession> GetActiveSessionAsync(int empId)
         {
