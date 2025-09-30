@@ -13,31 +13,49 @@ namespace EmployeeTracker.Services
         {
             _ctx = ctx;
         }
+
         public async Task<AttendanceCalendarDto> GetCalendarAsync(int empId, int month, int year)
         {
-            var start = new DateTime(year, month, 1);
-            var end = start.AddMonths(1).AddDays(-1);
-
-            var attendances = await _ctx.WorkSessions
-                .Where(ws => ws.EmpId == empId && ws.LoginTime >= start && ws.LoginTime <= end)
-                .ToListAsync();
-
-            var leaves = await _ctx.LeaveRequests
-                .Where(l => l.EmpId == empId && l.Status == LeaveStatus.Approved
-                         && l.StartDate <= end && l.EndDate >= start)
-                .ToListAsync();
-
             var days = new List<AttandanceCalenderDto>();
 
-            for (var date = start; date <= end; date = date.AddDays(1))
+            // Get total days in month
+            int daysInMonth = DateTime.DaysInMonth(year, month);
+
+            // Get employee sessions (logins)
+            var sessions = await _ctx.WorkSessions
+                .Where(s => s.EmpId == empId &&
+                            s.LoginTime.Month == month &&
+                            s.LoginTime.Year == year)
+                .ToListAsync();
+
+            // Get employee leaves
+            var leaveRequests = await _ctx.LeaveRequests
+                .Where(lr => lr.EmpId == empId &&
+                             lr.StartDate.Date <= new DateTime(year, month, daysInMonth) &&
+                             lr.EndDate.Date >= new DateTime(year, month, 1))
+                .ToListAsync();
+
+            // Build attendance per day
+            for (int day = 1; day <= daysInMonth; day++)
             {
-                var status = "NotMarked";
+                var date = new DateTime(year, month, day);
+                string status = "NotMarked";
 
-                if (attendances.Any(a => a.LoginTime.Date == date.Date))
+                // ✅ Weekends as Holiday
+                if (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday)
+                {
+                    status = "Holiday";
+                }
+                // ✅ Present if session exists
+                else if (sessions.Any(s => s.LoginTime.Date == date))
+                {
                     status = "Present";
-
-                if (leaves.Any(l => l.StartDate <= date && l.EndDate >= date))
+                }
+                // ✅ Absent if leave applied
+                else if (leaveRequests.Any(lr => lr.StartDate.Date <= date && lr.EndDate.Date >= date))
+                {
                     status = "Absent";
+                }
 
                 days.Add(new AttandanceCalenderDto
                 {
@@ -54,7 +72,6 @@ namespace EmployeeTracker.Services
                 Days = days
             };
         }
-
 
     }
 }

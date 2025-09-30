@@ -83,7 +83,7 @@ namespace EmployeeTracker.Services
                 .Where(lb => lb.EmpId == empId)
                 .Select(lb => new LeaveTypeSummaryDto
                 {
-                    LeaveType = lb.LeaveType.ToString(),
+                    LeaveType = lb.LeaveType,
                     TotalAllocated = lb.TotalLeave,
                     Used = lb.UsedLeave
                 })
