@@ -1,16 +1,16 @@
-﻿using EmployeeTracker.Datas;
-using EmployeeTracker.Models;
+﻿using EmployeeTracker.Models;
+using EmployeeTracker.Repository;
 using Microsoft.EntityFrameworkCore;
 
 namespace EmployeeTracker.Services
 {
     public class WorkSessionService : IWorkSessionService
     {
-        private readonly EmployeeTrackerDbContext _ctx;
+        private readonly IGenericRepository<WorkSession> _workSessionRepo;
 
-        public WorkSessionService(EmployeeTrackerDbContext ctx)
+        public WorkSessionService(IGenericRepository<WorkSession> workSessionRepo)
         {
-            _ctx = ctx;
+            _workSessionRepo = workSessionRepo;
         }
 
         // Clock In (start work session)
@@ -23,15 +23,15 @@ namespace EmployeeTracker.Services
                 Breaks = new List<Break>()
             };
 
-            _ctx.WorkSessions.Add(session);
-            await _ctx.SaveChangesAsync();
-            return session;
+            var newSession = await _workSessionRepo.AddAsync(session);
+            await _workSessionRepo.SaveChangesAsync();
+            return newSession;
         }
 
         // Clock Out (end work session)
         public async Task<WorkSession> ClockOutAsync(int sessionId)
         {
-            var session = await _ctx.WorkSessions.FindAsync(sessionId);
+            var session = await _workSessionRepo.GetByIdAsync(sessionId);
             if (session == null) return null;
 
             session.LogoutTime = DateTime.Now;
@@ -40,17 +40,21 @@ namespace EmployeeTracker.Services
                 session.TotalWorkedHours =
                     (session.LogoutTime.Value - session.LoginTime).TotalHours;
 
-            await _ctx.SaveChangesAsync();
+            _workSessionRepo.Update(session);
+            await _workSessionRepo.SaveChangesAsync();
             return session;
         }
 
         // Get currently active session (no logout yet)
         public async Task<WorkSession> GetActiveSessionAsync(int empId)
         {
-            return await _ctx.WorkSessions
-                .Where(ws => ws.EmpId == empId && ws.LogoutTime == null)
+            var sessions = await _workSessionRepo.FindAsync(
+                ws => ws.EmpId == empId && ws.LogoutTime == null
+            );
+
+            return sessions
                 .OrderByDescending(ws => ws.LoginTime)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
         }
     }
 }

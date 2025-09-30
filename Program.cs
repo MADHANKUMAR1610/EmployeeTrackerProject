@@ -3,8 +3,6 @@ using EmployeeTracker.Repository;
 
 using EmployeeTracker.Services;
 using Microsoft.EntityFrameworkCore;
-using System;
-using static EmployeeTracker.Repository.EmpTracker;
 
 var builder = WebApplication.CreateBuilder(args);
 

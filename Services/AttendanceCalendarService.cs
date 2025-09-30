@@ -1,62 +1,68 @@
-﻿using EmployeeTracker.Datas;
-using EmployeeTracker.Dtos;
+﻿using EmployeeTracker.Dtos;
 using EmployeeTracker.Models;
+using EmployeeTracker.Repository;
 using Microsoft.EntityFrameworkCore;
 
 namespace EmployeeTracker.Services
 {
     public class AttendanceCalendarService : IAttendanceCalendarService
     {
-        private readonly EmployeeTrackerDbContext _ctx;
+        private readonly IGenericRepository<WorkSession> _workSessionRepo;
+        private readonly IGenericRepository<LeaveRequest> _leaveRequestRepo;
 
-        public AttendanceCalendarService(EmployeeTrackerDbContext ctx)
+        public AttendanceCalendarService(
+            IGenericRepository<WorkSession> workSessionRepo,
+            IGenericRepository<LeaveRequest> leaveRequestRepo)
         {
-            _ctx = ctx;
+            _workSessionRepo = workSessionRepo;
+            _leaveRequestRepo = leaveRequestRepo;
         }
 
         public async Task<AttendanceCalendarDto> GetCalendarAsync(int empId, int month, int year)
         {
             var days = new List<AttandanceCalenderDto>();
 
-            // Get total days in month
+            // ✅ Get total days in the requested month
             int daysInMonth = DateTime.DaysInMonth(year, month);
+            var startDate = new DateTime(year, month, 1);
+            var endDate = new DateTime(year, month, daysInMonth);
 
-            // Get employee sessions (logins)
-            var sessions = await _ctx.WorkSessions
-                .Where(s => s.EmpId == empId &&
-                            s.LoginTime.Month == month &&
-                            s.LoginTime.Year == year)
-                .ToListAsync();
+            // ✅ Get employee sessions (logins) for the month
+            var sessions = await _workSessionRepo.FindAsync(s =>
+                s.EmpId == empId &&
+                s.LoginTime.Month == month &&
+                s.LoginTime.Year == year
+            );
 
-            // Get employee leaves
-            var leaveRequests = await _ctx.LeaveRequests
-                .Where(lr => lr.EmpId == empId &&
-                             lr.StartDate.Date <= new DateTime(year, month, daysInMonth) &&
-                             lr.EndDate.Date >= new DateTime(year, month, 1))
-                .ToListAsync();
+            // ✅ Get approved leave requests for the employee in this month
+            var leaveRequests = await _leaveRequestRepo.FindAsync(lr =>
+                lr.EmpId == empId &&
+                lr.Status == LeaveStatus.Approved &&   // Only approved leaves
+                lr.StartDate.Date <= endDate &&
+                lr.EndDate.Date >= startDate
+            );
 
-            // Build attendance per day
+            // ✅ Build attendance per day
             for (int day = 1; day <= daysInMonth; day++)
             {
                 var date = new DateTime(year, month, day);
                 string status = "NotMarked";
 
-                // ✅ Weekends as Holiday
+                // Weekend → Holiday
                 if (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday)
                 {
                     status = "Holiday";
                 }
-                // ✅ Present if session exists
+                // Present → If session exists
                 else if (sessions.Any(s => s.LoginTime.Date == date))
                 {
                     status = "Present";
                 }
-                // ✅ Absent if leave approved
+                // Absent → If leave is approved for that day
                 else if (leaveRequests.Any(lr => lr.StartDate.Date <= date && lr.EndDate.Date >= date))
                 {
                     status = "Absent";
                 }
-
 
                 days.Add(new AttandanceCalenderDto
                 {
@@ -73,7 +79,5 @@ namespace EmployeeTracker.Services
                 Days = days
             };
         }
-
     }
 }
-

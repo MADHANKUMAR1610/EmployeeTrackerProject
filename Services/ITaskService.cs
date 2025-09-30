@@ -1,5 +1,4 @@
 ﻿using EmployeeTracker.Dtos;
-using EmployeeTracker.Models;
 
 namespace EmployeeTracker.Services
 {
@@ -19,6 +18,8 @@ namespace EmployeeTracker.Services
 
         // Mark task as completed
         Task<bool> CompleteTaskAsync(int taskId);
+
+        // Get pending task count
         Task<int> GetPendingTaskCountAsync(int empId);
     }
 }
