@@ -3,7 +3,7 @@
     public enum LeaveType
     {
 
-        Casual = 12, Medical = 12, Composition = 8, WeekOff = 8, Permission = 3
+        Casual, Medical, Composition, WeekOff, Permission
 
     }
     public enum LeaveStatus
