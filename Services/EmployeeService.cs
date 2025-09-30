@@ -1,25 +1,30 @@
-﻿using EmployeeTracker.Datas;
-using EmployeeTracker.Models;
-using Microsoft.EntityFrameworkCore;
-
+﻿using EmployeeTracker.Models;
+using EmployeeTracker.Repository;
 
 namespace EmployeeTracker.Services
 {
     public class EmployeeService : IEmployeeService
     {
+        private readonly IGenericRepository<Employee> _employeeRepo;
 
-        private readonly EmployeeTrackerDbContext _ctx;
-        public EmployeeService(EmployeeTrackerDbContext ctx) => _ctx = ctx;
+        public EmployeeService(IGenericRepository<Employee> employeeRepo)
+        {
+            _employeeRepo = employeeRepo;
+        }
 
+        // ---------------- Authenticate ----------------
         public async Task<Employee> AuthenticateAsync(string email, string password)
         {
-            return await _ctx.Employees.FirstOrDefaultAsync(e => e.Mail == email && e.Password == password);
+            var employees = await _employeeRepo.FindAsync(e => e.Mail == email && e.Password == password);
+            return employees.FirstOrDefault();
         }
 
+        // ---------------- Get employee by Id ----------------
         public async Task<Employee> GetByIdAsync(int id)
         {
-            return await _ctx.Employees.FindAsync(id);
+            return await _employeeRepo.GetByIdAsync(id);
         }
-
     }
 }
+
+

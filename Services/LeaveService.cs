@@ -1,37 +1,44 @@
-﻿using EmployeeTracker.Datas;
-using EmployeeTracker.Dtos;
+﻿using EmployeeTracker.Dtos;
 using EmployeeTracker.Models;
 using EmployeeTracker.Repository;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace EmployeeTracker.Services
 {
-
     public class LeaveService : ILeaveService
     {
-        private readonly EmployeeTrackerDbContext _ctx;
-        public LeaveService(EmployeeTrackerDbContext ctx) => _ctx = ctx;
+        private readonly IGenericRepository<LeaveRequest> _leaveRepo;
+        private readonly IGenericRepository<LeaveBalance> _balanceRepo;
+
+        public LeaveService(
+            IGenericRepository<LeaveRequest> leaveRepo,
+            IGenericRepository<LeaveBalance> balanceRepo)
+        {
+            _leaveRepo = leaveRepo;
+            _balanceRepo = balanceRepo;
+        }
 
         // ---------------- Apply leave ----------------
         public async Task<LeaveRequest> ApplyLeaveAsync(LeaveRequest request)
         {
-            _ctx.LeaveRequests.Add(request);
-            await _ctx.SaveChangesAsync();
+            await _leaveRepo.AddAsync(request);
+            await _leaveRepo.SaveChangesAsync();
             return request;
         }
 
         // ---------------- Approve leave ----------------
         public async Task<LeaveRequest> ApproveLeaveAsync(int leaveRequestId)
         {
-            var req = await _ctx.LeaveRequests.FindAsync(leaveRequestId);
+            var req = await _leaveRepo.GetByIdAsync(leaveRequestId);
             if (req == null) return null;
             if (req.Status == LeaveStatus.Approved) return req;
 
             var days = (int)((req.EndDate.Date - req.StartDate.Date).TotalDays) + 1;
 
-            var balance = await _ctx.LeaveBalances
-                .FirstOrDefaultAsync(lb => lb.EmpId == req.EmpId && lb.LeaveType == req.LeaveType);
+            var balances = await _balanceRepo.FindAsync(lb =>
+                lb.EmpId == req.EmpId && lb.LeaveType == req.LeaveType);
+
+            var balance = balances.FirstOrDefault();
 
             // ✅ Initialize leave balance if not present
             if (balance == null)
@@ -51,7 +58,7 @@ namespace EmployeeTracker.Services
                     },
                     UsedLeave = 0
                 };
-                _ctx.LeaveBalances.Add(balance);
+                await _balanceRepo.AddAsync(balance);
             }
 
             // ✅ Deduct from correct leave type
@@ -60,39 +67,30 @@ namespace EmployeeTracker.Services
                 balance.UsedLeave = balance.TotalLeave;
 
             req.Status = LeaveStatus.Approved;
-            _ctx.LeaveRequests.Update(req);
+            await _leaveRepo.UpdateAsync(req);      
+await _balanceRepo.UpdateAsync(balance); 
 
-            await _ctx.SaveChangesAsync();
+            await _leaveRepo.SaveChangesAsync();  // save changes for both repos (same DbContext underneath)
             return req;
         }
 
         // ---------------- Get leaves by employee ----------------
         public async Task<IEnumerable<LeaveRequest>> GetByEmpAsync(int empId)
         {
-            return await _ctx.LeaveRequests
-                .Where(r => r.EmpId == empId)
-                .ToListAsync();
+            return await _leaveRepo.FindAsync(r => r.EmpId == empId);
         }
-
-      
 
         // ---------------- Get leave summary (for dashboard display) ----------------
         public async Task<IEnumerable<LeaveTypeSummaryDto>> GetLeaveTypeSummaryAsync(int empId)
         {
-            var balances = await _ctx.LeaveBalances
-                .Where(lb => lb.EmpId == empId)
-                .Select(lb => new LeaveTypeSummaryDto
-                {
-                    LeaveType = lb.LeaveType.ToString(),
-                    TotalAllocated = lb.TotalLeave,
-                    Used = lb.UsedLeave
-                })
-                .ToListAsync();
+            var balances = await _balanceRepo.FindAsync(lb => lb.EmpId == empId);
 
-            return balances;
+            return balances.Select(lb => new LeaveTypeSummaryDto
+            {
+                LeaveType = lb.LeaveType.ToString(),
+                TotalAllocated = lb.TotalLeave,
+                Used = lb.UsedLeave
+            });
         }
-
-
-
     }
 }

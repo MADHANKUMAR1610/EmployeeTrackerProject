@@ -1,52 +1,57 @@
-﻿using EmployeeTracker.Datas;
-using EmployeeTracker.Models;
+﻿using EmployeeTracker.Models;
 using EmployeeTracker.Repository;
-using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace EmployeeTracker.Services
 {
     public class BreakService : IBreakService
     {
-        private readonly EmployeeTrackerDbContext _ctx;
-        public BreakService(EmployeeTrackerDbContext ctx) => _ctx = ctx;
+        private readonly IGenericRepository<WorkSession> _workSessionRepo;
+        private readonly IGenericRepository<Break> _breakRepo;
+
+        public BreakService(
+            IGenericRepository<WorkSession> workSessionRepo,
+            IGenericRepository<Break> breakRepo)
+        {
+            _workSessionRepo = workSessionRepo;
+            _breakRepo = breakRepo;
+        }
 
         public async Task<Break> StartBreakAsync(int empId)
         {
-            // get active worksession
-            var session = await _ctx.WorkSessions.FirstOrDefaultAsync(w => w.EmpId == empId && w.LogoutTime == null);
+            // ✅ Find active work session
+            var sessions = await _workSessionRepo.FindAsync(w => w.EmpId == empId && w.LogoutTime == null);
+            var session = sessions.FirstOrDefault();
             if (session == null) return null;
 
+            // ✅ Create break
             var b = new Break
             {
                 WorkSessionId = session.Id,
                 BreakStartTime = DateTime.UtcNow
             };
-            _ctx.Breaks.Add(b);
-            await _ctx.SaveChangesAsync();
-            return b;
+
+            return await _breakRepo.AddAsync(b);
         }
 
         public async Task<Break> EndBreakAsync(int empId)
         {
-            // find latest open break for active session
-            var session = await _ctx.WorkSessions.FirstOrDefaultAsync(w => w.EmpId == empId && w.LogoutTime == null);
+            // ✅ Find active work session
+            var sessions = await _workSessionRepo.FindAsync(w => w.EmpId == empId && w.LogoutTime == null);
+            var session = sessions.FirstOrDefault();
             if (session == null) return null;
 
-            var br = await _ctx.Breaks
-                .Where(b => b.WorkSessionId == session.Id && b.BreakEndTime == null)
-                .OrderByDescending(b => b.BreakStartTime)
-                .FirstOrDefaultAsync();
-
+            // ✅ Find latest open break
+            var breaks = await _breakRepo.FindAsync(b => b.WorkSessionId == session.Id && b.BreakEndTime == null);
+            var br = breaks.OrderByDescending(b => b.BreakStartTime).FirstOrDefault();
             if (br == null) return null;
 
+            // ✅ End break & calculate duration
             br.BreakEndTime = DateTime.UtcNow;
-            var minutes = (br.BreakEndTime.Value - br.BreakStartTime).TotalMinutes;
-            br.BreakDurationMinutes = Math.Round((br.BreakEndTime.Value - br.BreakStartTime).TotalMinutes, 2);
+            br.BreakDurationMinutes = Math.Round(
+                (br.BreakEndTime.Value - br.BreakStartTime).TotalMinutes, 2
+            );
 
-
-            _ctx.Breaks.Update(br);
-            await _ctx.SaveChangesAsync();
+            await _breakRepo.UpdateAsync(br);
             return br;
         }
     }
