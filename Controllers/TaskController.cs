@@ -38,15 +38,14 @@ namespace EmployeeTracker.Controllers
             var tasks = await _taskService.GetTasksByEmployeeAsync(empId);
             return Ok(tasks);
         }
-
-        // Dashboard - get only pending tasks
+        
+        // GET: api/tasks/pending/{empId}
         [HttpGet("pending/{empId}")]
         public async Task<IActionResult> GetPendingTasks(int empId)
         {
             var tasks = await _taskService.GetPendingTasksAsync(empId);
             return Ok(tasks);
         }
-
         // Task page - get completed tasks
         [HttpGet("completed/{empId}")]
         public async Task<IActionResult> GetCompletedTasks(int empId)
@@ -71,6 +70,26 @@ namespace EmployeeTracker.Controllers
         {
             var count = await _taskService.GetPendingTaskCountAsync(empId);
             return Ok(count);
+        }
+
+        // ---------------- Delete task ----------------
+        [HttpDelete("{taskId}")]
+        public async Task<IActionResult> DeleteTask(int taskId)
+        {
+            var result = await _taskService.DeleteTaskAsync(taskId);
+            if (!result) return NotFound("Task not found");
+
+            return NoContent(); // 204 No Content on successful deletion
+        }
+
+        // ---------------- Update task details ----------------
+        [HttpPut("{taskId}")]
+        public async Task<IActionResult> UpdateTask(int taskId, CreateEmpTaskDto dto)
+        {
+            var updatedTask = await _taskService.UpdateTaskAsync(taskId, dto);
+            if (updatedTask == null) return NotFound("Task not found");
+
+            return Ok(updatedTask);
         }
 
     }

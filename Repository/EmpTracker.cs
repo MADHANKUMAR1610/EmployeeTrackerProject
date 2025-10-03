@@ -1,4 +1,5 @@
 ﻿using EmployeeTracker.Datas;
+using EmployeeTracker.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -13,6 +14,10 @@ namespace EmployeeTracker.Repository
         {
             _ctx = ctx;
             _dbSet = _ctx.Set<T>();
+        }
+        public IQueryable<T> Query()
+        {
+            return _dbSet.AsQueryable();
         }
 
         public async Task<T> AddAsync(T entity)
@@ -61,5 +66,15 @@ namespace EmployeeTracker.Repository
         {
             return await _ctx.SaveChangesAsync();
         }
+
+        // ------------------ New Task-specific method ------------------
+        public async Task<IEnumerable<T>> GetPendingTasksByAssigneeAsync(int assigneeId)
+        {
+            return await _dbSet
+                .Where(t => EF.Property<int>(t, "AssigneeId") == assigneeId
+                         && EF.Property<string>(t, "Status") == "Pending")
+                .ToListAsync();
+        }
+
     }
 }

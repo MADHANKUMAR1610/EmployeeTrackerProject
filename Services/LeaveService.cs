@@ -92,5 +92,33 @@ await _balanceRepo.UpdateAsync(balance);
                 Used = lb.UsedLeave
             });
         }
+
+        public async Task<LeaveRequest> UpdateLeaveAsync(int id, LeaveRequest updatedRequest)
+        {
+            var existing = await _leaveRepo.GetByIdAsync(id);
+            if (existing == null) return null;
+
+            // Update relevant fields
+            existing.StartDate = updatedRequest.StartDate;
+            existing.EndDate = updatedRequest.EndDate;
+            existing.LeaveType = updatedRequest.LeaveType;
+            existing.Reason = updatedRequest.Reason;
+            existing.Status = updatedRequest.Status;
+
+            await _leaveRepo.UpdateAsync(existing);
+            await _leaveRepo.SaveChangesAsync();
+
+            return existing;
+        }
+        public async Task<bool> DeleteLeaveAsync(int id)
+        {
+            var leave = await _leaveRepo.GetByIdAsync(id);
+            if (leave == null) return false;
+
+            await _leaveRepo.DeleteAsync(id);
+            await _leaveRepo.SaveChangesAsync();
+            return true;
+        }
+
     }
 }

@@ -1,11 +1,12 @@
 ﻿using EmployeeTracker.Models;
 
-namespace EmployeeTracker.Services
+public interface IEmployeeService
 {
-    public interface IEmployeeService
-    {
+    Task<IEnumerable<Employee>> GetAllAsync();
+    
+    Task<Employee> GetByIdAsync(int id);
+    Task<Employee> CreateAsync(Employee employee);
+    Task<Employee> UpdateAsync(Employee employee);
+    Task<bool> DeleteAsync(int id);
 
-        Task<Employee> AuthenticateAsync(string email, string password);
-        Task<Employee> GetByIdAsync(int id);
-    }
 }

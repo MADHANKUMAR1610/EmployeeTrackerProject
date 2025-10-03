@@ -1,48 +1,58 @@
 ﻿using AutoMapper;
 using EmployeeTracker.Models;
 using EmployeeTracker.Dtos;
+using TaskStatus = EmployeeTracker.Models.TaskStatus;
+using TaskPriority = EmployeeTracker.Models.TaskPriority;
+
+
 namespace EmployeeTracker
 {
     public class MappingProfile : Profile
     {
         public MappingProfile()
         {
-            // Employee
+            // ---------------- Employee ----------------
             CreateMap<Employee, EmployeeDto>();
             CreateMap<CreateEmployeeDto, Employee>();
 
-            // WorkSession
+            // ---------------- WorkSession ----------------
             CreateMap<WorkSession, WorkSessionDto>();
             CreateMap<CreateWorkSessionDto, WorkSession>();
 
-     
-            // DTO → Model
+            // ---------------- Leave Request (DTO → Model) ----------------
             CreateMap<CreateLeaveRequestDto, LeaveRequest>()
                 .ForMember(dest => dest.LeaveType,
-                           opt => opt.MapFrom(src => Enum.Parse<LeaveType>(src.LeaveType, true))); // 👈 parse string → enum
+                           opt => opt.MapFrom(src => Enum.Parse<LeaveType>(src.LeaveType, true))); // string → enum
 
-            // Model → DTO
+            // ---------------- Leave Request (Model → DTO) ----------------
             CreateMap<LeaveRequest, LeaveRequestDto>()
                 .ForMember(dest => dest.LeaveType,
-                           opt => opt.MapFrom(src => src.LeaveType.ToString())); // 👈 enum → string
-        
+                           opt => opt.MapFrom(src => src.LeaveType.ToString())); // enum → string
 
-        // Break
-        CreateMap<Break, BreakDto>();
+            // ---------------- Break ----------------
+            CreateMap<Break, BreakDto>();
             CreateMap<CreateBreakDto, Break>();
 
-            // Task
-            CreateMap<EmpTask, EmpTaskDto>();
-            CreateMap<CreateEmpTaskDto, EmpTask>();
+            // ---------------- Task ----------------
+            // ---------------- Task ----------------
+            CreateMap<EmpTask, EmpTaskDto>()
+                .ForMember(dest => dest.AssigneeName,
+                           opt => opt.MapFrom(src => src.Assignee != null ? src.Assignee.Name : ""))
+                .ForMember(dest => dest.Priority,
+                           opt => opt.MapFrom(src => src.Priority.ToString())) // enum → string
+                .ForMember(dest => dest.Status,
+                           opt => opt.MapFrom(src => src.Status.ToString()));  // enum → string
 
-            // Leave Request
-            CreateMap<LeaveRequest, LeaveRequestDto>();
-            CreateMap<CreateLeaveRequestDto, LeaveRequest>();
+            CreateMap<CreateEmpTaskDto, EmpTask>()
+                .ForMember(dest => dest.Priority,
+                           opt => opt.MapFrom(src => Enum.Parse<TaskPriority>(src.Priority, true))) // string → enum
+                .ForMember(dest => dest.Status,
+                           opt => opt.MapFrom(src => Enum.Parse<TaskStatus>(src.Status, true)));   // string → enum
 
-            // Leave Balance
+
+            // ---------------- Leave Balance ----------------
             CreateMap<LeaveBalance, LeaveBalanceDto>();
             CreateMap<CreateLeaveBalanceDto, LeaveBalance>();
         }
     }
 }
-

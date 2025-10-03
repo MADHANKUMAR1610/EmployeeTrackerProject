@@ -2,8 +2,6 @@
 using EmployeeTracker.Datas;
 using EmployeeTracker.Dtos;
 using EmployeeTracker.Models;
-using EmployeeTracker.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeTracker.Controllers

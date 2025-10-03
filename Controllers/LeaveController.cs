@@ -2,8 +2,6 @@
 using EmployeeTracker.Dtos;
 using EmployeeTracker.Models;
 using EmployeeTracker.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeTracker.Controllers
@@ -57,6 +55,26 @@ namespace EmployeeTracker.Controllers
         {
             var summary = await _leaveService.GetLeaveTypeSummaryAsync(empId);
             return Ok(summary);
+        }
+        // ---------------- Update Leave ----------------
+        [HttpPut("update/{id}")]
+        public async Task<ActionResult<LeaveRequestDto>> UpdateLeave(int id, CreateLeaveRequestDto dto)
+        {
+            var leaveRequest = _mapper.Map<LeaveRequest>(dto);
+            var updatedLeave = await _leaveService.UpdateLeaveAsync(id, leaveRequest);
+            if (updatedLeave == null) return NotFound();
+
+            return Ok(_mapper.Map<LeaveRequestDto>(updatedLeave));
+        }
+
+        // ---------------- Delete Leave ----------------
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteLeave(int id)
+        {
+            var deleted = await _leaveService.DeleteLeaveAsync(id);
+            if (!deleted) return NotFound();
+
+            return NoContent();
         }
     }
 }

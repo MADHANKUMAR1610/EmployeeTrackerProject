@@ -10,7 +10,10 @@ namespace EmployeeTracker.Services
         Task<IEnumerable<LeaveRequest>> GetByEmpAsync(int empId);
         
         Task<IEnumerable<LeaveTypeSummaryDto>> GetLeaveTypeSummaryAsync(int empId);
-       
+        Task<LeaveRequest> UpdateLeaveAsync(int id, LeaveRequest leaveRequest);
+        Task<bool> DeleteLeaveAsync(int id);
+
+
 
     }
 }

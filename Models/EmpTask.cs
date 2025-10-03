@@ -23,5 +23,6 @@ namespace EmployeeTracker.Models
         public TaskStatus Status { get; set; } = TaskStatus.Pending;
         public TaskPriority Priority { get; set; } = TaskPriority.Medium;
         public string Tag { get; set; }
+       
     }
     }
