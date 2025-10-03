@@ -73,5 +73,25 @@ namespace EmployeeTracker.Controllers
             return Ok(count);
         }
 
+        // ---------------- Delete task ----------------
+        [HttpDelete("{taskId}")]
+        public async Task<IActionResult> DeleteTask(int taskId)
+        {
+            var result = await _taskService.DeleteTaskAsync(taskId);
+            if (!result) return NotFound("Task not found");
+
+            return NoContent(); // 204 No Content on successful deletion
+        }
+
+        // ---------------- Update task details ----------------
+        [HttpPut("{taskId}")]
+        public async Task<IActionResult> UpdateTask(int taskId, CreateEmpTaskDto dto)
+        {
+            var updatedTask = await _taskService.UpdateTaskAsync(taskId, dto);
+            if (updatedTask == null) return NotFound("Task not found");
+
+            return Ok(updatedTask);
+        }
+
     }
 }

@@ -21,5 +21,10 @@ namespace EmployeeTracker.Services
 
         // Get pending task count
         Task<int> GetPendingTaskCountAsync(int empId);
+
+        Task<bool> DeleteTaskAsync(int taskId);
+        // Update an existing task
+        Task<EmpTaskDto> UpdateTaskAsync(int taskId, CreateEmpTaskDto dto);
+
     }
 }

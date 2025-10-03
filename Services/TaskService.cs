@@ -75,5 +75,27 @@ namespace EmployeeTracker.Services
             );
             return tasks.Count();
         }
+
+        public async Task<bool> DeleteTaskAsync(int taskId)
+        {
+            var task = await _taskRepo.GetByIdAsync(taskId);
+            if (task == null) return false;
+
+            await _taskRepo.DeleteAsync(taskId);
+            await _taskRepo.SaveChangesAsync();
+            return true;
+        }
+        public async Task<EmpTaskDto> UpdateTaskAsync(int taskId, CreateEmpTaskDto dto)
+        {
+            var task = await _taskRepo.GetByIdAsync(taskId);
+            if (task == null) return null;
+
+            _mapper.Map(dto, task);  // Map updated fields from DTO to existing task
+            _taskRepo.Update(task);
+            await _taskRepo.SaveChangesAsync();
+
+            return _mapper.Map<EmpTaskDto>(task);
+        }
+
     }
 }
