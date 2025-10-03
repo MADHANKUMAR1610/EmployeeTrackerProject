@@ -2,6 +2,7 @@
 using EmployeeTracker.Dtos;
 using EmployeeTracker.Models;
 using EmployeeTracker.Repository;
+using Microsoft.EntityFrameworkCore;
 using TaskStatus = EmployeeTracker.Models.TaskStatus;
 
 namespace EmployeeTracker.Services
@@ -36,10 +37,12 @@ namespace EmployeeTracker.Services
         // ---------------- Get only pending tasks ----------------
         public async Task<IEnumerable<EmpTaskDto>> GetPendingTasksAsync(int empId)
         {
-            var tasks = await _taskRepo.FindAsync(
-                t => (t.EmpId == empId || t.AssigneeId == empId)
-                  && t.Status == TaskStatus.Pending
-            );
+            var tasks = await _taskRepo
+                   .Query() // <- make sure GenericRepository exposes IQueryable<T>
+                 .Where(t => (t.EmpId == empId || t.AssigneeId == empId) && t.Status == TaskStatus.Pending)
+                .Include(t => t.Assignee)
+                  .ToListAsync();
+            
             return _mapper.Map<IEnumerable<EmpTaskDto>>(tasks);
         }
 
@@ -75,7 +78,7 @@ namespace EmployeeTracker.Services
             );
             return tasks.Count();
         }
-
+        //delete a task
         public async Task<bool> DeleteTaskAsync(int taskId)
         {
             var task = await _taskRepo.GetByIdAsync(taskId);
@@ -85,6 +88,8 @@ namespace EmployeeTracker.Services
             await _taskRepo.SaveChangesAsync();
             return true;
         }
+        // update a task
+
         public async Task<EmpTaskDto> UpdateTaskAsync(int taskId, CreateEmpTaskDto dto)
         {
             var task = await _taskRepo.GetByIdAsync(taskId);

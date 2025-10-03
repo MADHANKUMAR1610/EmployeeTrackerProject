@@ -38,15 +38,14 @@ namespace EmployeeTracker.Controllers
             var tasks = await _taskService.GetTasksByEmployeeAsync(empId);
             return Ok(tasks);
         }
-
-        // Dashboard - get only pending tasks
+        
+        // GET: api/tasks/pending/{empId}
         [HttpGet("pending/{empId}")]
         public async Task<IActionResult> GetPendingTasks(int empId)
         {
             var tasks = await _taskService.GetPendingTasksAsync(empId);
             return Ok(tasks);
         }
-
         // Task page - get completed tasks
         [HttpGet("completed/{empId}")]
         public async Task<IActionResult> GetCompletedTasks(int empId)

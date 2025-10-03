@@ -4,6 +4,7 @@ namespace EmployeeTracker.Repository
 {
     public interface IGenericRepository<T> where T : class
     {
+        IQueryable<T> Query();
         Task<T> AddAsync(T entity);
         Task DeleteAsync(int id);
         Task<IEnumerable<T>> GetAllAsync();
@@ -13,5 +14,8 @@ namespace EmployeeTracker.Repository
         void Update(T entity);
 
         Task<int> SaveChangesAsync();
+        Task<IEnumerable<T>> GetPendingTasksByAssigneeAsync(int assigneeId);
+
+
     }
 }
