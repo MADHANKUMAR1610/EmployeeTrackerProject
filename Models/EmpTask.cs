@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
+﻿
 namespace EmployeeTracker.Models
 {
     public class EmpTask

@@ -18,7 +18,6 @@ namespace EmployeeTracker.Services
             var employees = await _employeeRepo.FindAsync(e => e.Mail == email && e.Password == password);
             return employees.FirstOrDefault();
         }
-
         // ---------------- Get employee by Id ----------------
         public async Task<Employee> GetByIdAsync(int id)
         {
