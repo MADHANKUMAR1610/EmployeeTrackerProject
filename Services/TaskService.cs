@@ -104,7 +104,7 @@ namespace EmployeeTracker.Services
         }
 
         // ---------------- Update a task ----------------
-        public async Task<EmpTaskDto?> UpdateTaskAsync(int taskId, CreateEmpTaskDto dto)
+        public async Task<EmpTaskDto> UpdateTaskAsync(int taskId, CreateEmpTaskDto dto)
         {
             var task = await _taskRepo
                 .Query()

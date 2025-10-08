@@ -48,6 +48,13 @@ namespace EmployeeTracker
                            opt => opt.MapFrom(src => Enum.Parse<TaskPriority>(src.Priority, true))) // string → enum
                 .ForMember(dest => dest.Status,
                            opt => opt.MapFrom(src => Enum.Parse<TaskStatus>(src.Status, true)));   // string → enum
+            CreateMap<EmpTask, EmpTaskDto>()
+    .ForMember(dest => dest.AssigneeName,
+               opt => opt.MapFrom(src => src.Assignee != null ? src.Assignee.Name : ""))
+    .ForMember(dest => dest.Priority,
+               opt => opt.MapFrom(src => src.Priority.ToString()))
+    .ForMember(dest => dest.Status,
+               opt => opt.MapFrom(src => src.Status.ToString()));
         }
     }
 }

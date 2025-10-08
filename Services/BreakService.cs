@@ -17,7 +17,7 @@ namespace EmployeeTracker.Services
         }
 
         // ✅ Start a new break
-        public async Task<Break?> StartBreakAsync(int empId)
+        public async Task<Break> StartBreakAsync(int empId)
         {
             // Find active work session
             var sessions = await _workSessionRepo.FindAsync(w => w.EmpId == empId && w.LogoutTime == null);
@@ -38,7 +38,7 @@ namespace EmployeeTracker.Services
         }
 
         // ✅ End the latest active break
-        public async Task<Break?> EndBreakAsync(int empId)
+        public async Task<Break> EndBreakAsync(int empId)
         {
             // Find active work session
             var sessions = await _workSessionRepo.FindAsync(w => w.EmpId == empId && w.LogoutTime == null);
