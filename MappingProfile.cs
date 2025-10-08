@@ -4,7 +4,6 @@ using EmployeeTracker.Dtos;
 using TaskStatus = EmployeeTracker.Models.TaskStatus;
 using TaskPriority = EmployeeTracker.Models.TaskPriority;
 
-
 namespace EmployeeTracker
 {
     public class MappingProfile : Profile
@@ -19,21 +18,22 @@ namespace EmployeeTracker
             CreateMap<WorkSession, WorkSessionDto>();
             CreateMap<CreateWorkSessionDto, WorkSession>();
 
-            // ---------------- Leave Request (DTO → Model) ----------------
+            // ---------------- Leave Request ----------------
+            // DTO → Model
             CreateMap<CreateLeaveRequestDto, LeaveRequest>()
-                .ForMember(dest => dest.LeaveType,
-                           opt => opt.MapFrom(src => Enum.Parse<LeaveType>(src.LeaveType, true))); // string → enum
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => LeaveStatus.Approved)); // ✅ auto-approved
 
-            // ---------------- Leave Request (Model → DTO) ----------------
-            CreateMap<LeaveRequest, LeaveRequestDto>()
-                .ForMember(dest => dest.LeaveType,
-                           opt => opt.MapFrom(src => src.LeaveType.ToString())); // enum → string
+            // Model → DTO
+            CreateMap<LeaveRequest, LeaveRequestDto>();
+
+            // ---------------- Leave Balance ----------------
+            CreateMap<LeaveBalance, LeaveBalanceDto>();
+            CreateMap<CreateLeaveBalanceDto, LeaveBalance>();
 
             // ---------------- Break ----------------
             CreateMap<Break, BreakDto>();
             CreateMap<CreateBreakDto, Break>();
 
-            // ---------------- Task ----------------
             // ---------------- Task ----------------
             CreateMap<EmpTask, EmpTaskDto>()
                 .ForMember(dest => dest.AssigneeName,
@@ -48,11 +48,6 @@ namespace EmployeeTracker
                            opt => opt.MapFrom(src => Enum.Parse<TaskPriority>(src.Priority, true))) // string → enum
                 .ForMember(dest => dest.Status,
                            opt => opt.MapFrom(src => Enum.Parse<TaskStatus>(src.Status, true)));   // string → enum
-
-
-            // ---------------- Leave Balance ----------------
-            CreateMap<LeaveBalance, LeaveBalanceDto>();
-            CreateMap<CreateLeaveBalanceDto, LeaveBalance>();
         }
     }
 }

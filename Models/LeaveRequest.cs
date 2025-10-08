@@ -13,7 +13,7 @@ namespace EmployeeTracker.Models
         public DateTime EndDate { get; set; }
         public string Reason { get; set; }
 
-        public LeaveStatus Status { get; set; } = LeaveStatus.Pending;
+        public LeaveStatus Status { get; set; } = LeaveStatus.Approved;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

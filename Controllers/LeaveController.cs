@@ -8,7 +8,6 @@ namespace EmployeeTracker.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    
     public class LeaveController : ControllerBase
     {
         private readonly ILeaveService _leaveService;
@@ -21,48 +20,48 @@ namespace EmployeeTracker.Controllers
         }
 
         // ---------------- Apply Leave ----------------
+        // Automatically approves and deducts leave balance
         [HttpPost("apply")]
-        public async Task<ActionResult<LeaveRequestDto>> Apply(CreateLeaveRequestDto dto)
+        public async Task<ActionResult<LeaveRequestDto>> ApplyLeave([FromBody] CreateLeaveRequestDto dto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var leaveRequest = _mapper.Map<LeaveRequest>(dto);
-            var result = await _leaveService.ApplyLeaveAsync(leaveRequest);
+            var createdLeave = await _leaveService.ApplyLeaveAsync(leaveRequest);
 
-            return Ok(_mapper.Map<LeaveRequestDto>(result));
-        }
-
-        // ---------------- Approve Leave ----------------
-        [HttpPost("approve/{id}")]
-        public async Task<ActionResult<LeaveRequestDto>> Approve(int id)
-        {
-            var result = await _leaveService.ApproveLeaveAsync(id);
-            if (result == null) return NotFound();
-
-            return Ok(_mapper.Map<LeaveRequestDto>(result));
+            var response = _mapper.Map<LeaveRequestDto>(createdLeave);
+            return CreatedAtAction(nameof(GetLeavesByEmployee), new { empId = response.EmpId }, response);
         }
 
         // ---------------- Get Leave by Employee ----------------
         [HttpGet("byemp/{empId}")]
-        public async Task<ActionResult<IEnumerable<LeaveRequestDto>>> ByEmp(int empId)
+        public async Task<ActionResult<IEnumerable<LeaveRequestDto>>> GetLeavesByEmployee(int empId)
         {
             var leaves = await _leaveService.GetByEmpAsync(empId);
-            return Ok(_mapper.Map<IEnumerable<LeaveRequestDto>>(leaves));
+            var result = _mapper.Map<IEnumerable<LeaveRequestDto>>(leaves);
+            return Ok(result);
         }
 
-        // ---------------- Get Leave Summary for Attendance Page ----------------
-        
-        [HttpGet("summarydisplay/{empId}")]
-        public async Task<ActionResult<IEnumerable<LeaveTypeSummaryDto>>> GetLeaveTypeSummary(int empId)
+        // ---------------- Get Leave Summary for Dashboard / Attendance Page ----------------
+        [HttpGet("summary/{empId}")]
+        public async Task<ActionResult<IEnumerable<LeaveTypeSummaryDto>>> GetLeaveSummary(int empId)
         {
             var summary = await _leaveService.GetLeaveTypeSummaryAsync(empId);
             return Ok(summary);
         }
+
         // ---------------- Update Leave ----------------
         [HttpPut("update/{id}")]
-        public async Task<ActionResult<LeaveRequestDto>> UpdateLeave(int id, CreateLeaveRequestDto dto)
+        public async Task<ActionResult<LeaveRequestDto>> UpdateLeave(int id, [FromBody] CreateLeaveRequestDto dto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var leaveRequest = _mapper.Map<LeaveRequest>(dto);
             var updatedLeave = await _leaveService.UpdateLeaveAsync(id, leaveRequest);
-            if (updatedLeave == null) return NotFound();
+            if (updatedLeave == null)
+                return NotFound(new { message = $"Leave with ID {id} not found." });
 
             return Ok(_mapper.Map<LeaveRequestDto>(updatedLeave));
         }
@@ -72,10 +71,10 @@ namespace EmployeeTracker.Controllers
         public async Task<IActionResult> DeleteLeave(int id)
         {
             var deleted = await _leaveService.DeleteLeaveAsync(id);
-            if (!deleted) return NotFound();
+            if (!deleted)
+                return NotFound(new { message = $"Leave with ID {id} not found." });
 
             return NoContent();
         }
     }
 }
-
