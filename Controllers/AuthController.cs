@@ -1,12 +1,11 @@
 ﻿using EmployeeTracker.Services;
-using Microsoft.AspNetCore.Authorization;
+using EmployeeTracker.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeTracker.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
@@ -17,17 +16,17 @@ namespace EmployeeTracker.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(string email, string password)
+        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
-            var user = await _authService.LoginAsync(email, password);
-            if (user == null) return Unauthorized("Invalid credentials");
+            if (loginDto == null)
+                return BadRequest("Invalid request body");
+
+            var user = await _authService.LoginAsync(loginDto.Email, loginDto.Password);
+
+            if (user == null)
+                return Unauthorized("Invalid credentials");
+
             return Ok(user);
-        }
-        public class LoginDto
-        {
-            public string Email { get; set; }
-            public string Password { get; set; }
         }
     }
 }
-
