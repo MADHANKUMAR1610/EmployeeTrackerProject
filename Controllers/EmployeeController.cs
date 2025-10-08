@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using EmployeeTracker.Dtos;
 using EmployeeTracker.Models;
-using EmployeeTracker.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeTracker.Controllers
@@ -10,6 +9,7 @@ namespace EmployeeTracker.Controllers
     [ApiController]
     public class EmployeeController : ControllerBase
     {
+
         private readonly IEmployeeService _employeeService;
         private readonly IMapper _mapper;
 

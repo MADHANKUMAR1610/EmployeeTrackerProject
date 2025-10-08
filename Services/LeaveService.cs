@@ -19,14 +19,55 @@ namespace EmployeeTracker.Services
         }
 
         // ---------------- Apply leave ----------------
+        // Automatically approves and deducts leave balance
         public async Task<LeaveRequest> ApplyLeaveAsync(LeaveRequest request)
         {
+            // Auto mark as approved
+            request.Status = LeaveStatus.Approved;
+
+            // Calculate total days
+            var days = (int)((request.EndDate.Date - request.StartDate.Date).TotalDays) + 1;
+
+            // Get or initialize leave balance
+            var balances = await _balanceRepo.FindAsync(lb =>
+                lb.EmpId == request.EmpId && lb.LeaveType == request.LeaveType);
+
+            var balance = balances.FirstOrDefault();
+
+            if (balance == null)
+            {
+                balance = new LeaveBalance
+                {
+                    EmpId = request.EmpId,
+                    LeaveType = request.LeaveType,
+                    TotalLeave = request.LeaveType switch
+                    {
+                        LeaveType.Casual => 12,
+                        LeaveType.Medical => 12,
+                        LeaveType.Permission => 5,
+                        LeaveType.WeekOff => 52,
+                        LeaveType.Composition => 5,
+                        _ => 0
+                    },
+                    UsedLeave = 0
+                };
+                await _balanceRepo.AddAsync(balance);
+            }
+
+            // Deduct leave
+            balance.UsedLeave += days;
+            if (balance.UsedLeave > balance.TotalLeave)
+                balance.UsedLeave = balance.TotalLeave;
+
+            // Save leave request and updated balance
             await _leaveRepo.AddAsync(request);
-            await _leaveRepo.SaveChangesAsync();
+            await _balanceRepo.UpdateAsync(balance);
+            await _leaveRepo.SaveChangesAsync(); // saves both because they share same DbContext
+
             return request;
         }
 
-        // ---------------- Approve leave ----------------
+        // ---------------- Approve leave (kept for future admin flow) ----------------
         public async Task<LeaveRequest> ApproveLeaveAsync(int leaveRequestId)
         {
             var req = await _leaveRepo.GetByIdAsync(leaveRequestId);
@@ -40,7 +81,6 @@ namespace EmployeeTracker.Services
 
             var balance = balances.FirstOrDefault();
 
-            // ✅ Initialize leave balance if not present
             if (balance == null)
             {
                 balance = new LeaveBalance
@@ -61,16 +101,16 @@ namespace EmployeeTracker.Services
                 await _balanceRepo.AddAsync(balance);
             }
 
-            // ✅ Deduct from correct leave type
             balance.UsedLeave += days;
             if (balance.UsedLeave > balance.TotalLeave)
                 balance.UsedLeave = balance.TotalLeave;
 
             req.Status = LeaveStatus.Approved;
-            await _leaveRepo.UpdateAsync(req);      
-await _balanceRepo.UpdateAsync(balance); 
 
-            await _leaveRepo.SaveChangesAsync();  // save changes for both repos (same DbContext underneath)
+            await _leaveRepo.UpdateAsync(req);
+            await _balanceRepo.UpdateAsync(balance);
+            await _leaveRepo.SaveChangesAsync();
+
             return req;
         }
 
@@ -80,7 +120,7 @@ await _balanceRepo.UpdateAsync(balance);
             return await _leaveRepo.FindAsync(r => r.EmpId == empId);
         }
 
-        // ---------------- Get leave summary (for dashboard display) ----------------
+        // ---------------- Get leave summary ----------------
         public async Task<IEnumerable<LeaveTypeSummaryDto>> GetLeaveTypeSummaryAsync(int empId)
         {
             var balances = await _balanceRepo.FindAsync(lb => lb.EmpId == empId);
@@ -93,12 +133,12 @@ await _balanceRepo.UpdateAsync(balance);
             });
         }
 
+        // ---------------- Update leave ----------------
         public async Task<LeaveRequest> UpdateLeaveAsync(int id, LeaveRequest updatedRequest)
         {
             var existing = await _leaveRepo.GetByIdAsync(id);
             if (existing == null) return null;
 
-            // Update relevant fields
             existing.StartDate = updatedRequest.StartDate;
             existing.EndDate = updatedRequest.EndDate;
             existing.LeaveType = updatedRequest.LeaveType;
@@ -110,6 +150,8 @@ await _balanceRepo.UpdateAsync(balance);
 
             return existing;
         }
+
+        // ---------------- Delete leave ----------------
         public async Task<bool> DeleteLeaveAsync(int id)
         {
             var leave = await _leaveRepo.GetByIdAsync(id);
@@ -119,6 +161,5 @@ await _balanceRepo.UpdateAsync(balance);
             await _leaveRepo.SaveChangesAsync();
             return true;
         }
-
     }
 }

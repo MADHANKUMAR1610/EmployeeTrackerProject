@@ -45,7 +45,7 @@ namespace EmployeeTracker.Services
             return session;
         }
 
-        // Get currently active session (no logout yet)
+        // Get currently active session for Break (no logout yet)
         public async Task<WorkSession> GetActiveSessionAsync(int empId)
         {
             var sessions = await _workSessionRepo.FindAsync(
@@ -58,3 +58,4 @@ namespace EmployeeTracker.Services
         }
     }
 }
+
