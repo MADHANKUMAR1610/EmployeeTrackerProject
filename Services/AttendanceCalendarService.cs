@@ -63,10 +63,7 @@ namespace EmployeeTracker.Services
                 {
                     status = "Absent";
                 }
-<<<<<<< HEAD
-=======
 
->>>>>>> 86c4747b5b8c3d99cb586e9d128afa4e7b90ac53
                 days.Add(new AttandanceCalenderDto
                 {
                     Date = date,

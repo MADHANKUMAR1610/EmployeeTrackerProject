@@ -22,7 +22,7 @@ namespace EmployeeTracker.Services
                 LoginTime = DateTime.Now,
                 Breaks = new List<Break>()
             };
-
+            
             var newSession = await _workSessionRepo.AddAsync(session);
             await _workSessionRepo.SaveChangesAsync();
             return newSession;
