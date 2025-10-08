@@ -3,12 +3,12 @@ using EmployeeTracker.Datas;
 using EmployeeTracker.Dtos;
 using EmployeeTracker.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore; // Required for AnyAsync
 
 namespace EmployeeTracker.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-   
     public class BreakController : ControllerBase
     {
         private readonly EmployeeTrackerDbContext _context;
@@ -23,6 +23,16 @@ namespace EmployeeTracker.Controllers
         [HttpPost("start")]
         public async Task<ActionResult<BreakDto>> StartBreak(CreateBreakDto dto)
         {
+            // ✅ Check if the referenced WorkSessionId exists
+            bool workSessionExists = await _context.WorkSessions
+                .AnyAsync(ws => ws.Id == dto.WorkSessionId);
+
+            if (!workSessionExists)
+            {
+                return BadRequest("Invalid WorkSessionId. The referenced WorkSession does not exist.");
+            }
+
+            // Proceed to map and save
             var breakEntity = _mapper.Map<Break>(dto);
             _context.Breaks.Add(breakEntity);
             await _context.SaveChangesAsync();
@@ -45,4 +55,3 @@ namespace EmployeeTracker.Controllers
         }
     }
 }
-

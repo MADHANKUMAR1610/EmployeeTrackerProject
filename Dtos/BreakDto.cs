@@ -12,6 +12,10 @@
     public class CreateBreakDto
     {
         public int WorkSessionId { get; set; }
-        public DateTime BreakStartTime { get; set; } = DateTime.Now;
+            public DateTime BreakStartTime { get; set; }
+
+            // Add any other necessary fields
+        
+
     }
 }
