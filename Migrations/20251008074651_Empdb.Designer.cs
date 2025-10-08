@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EmployeeTracker.Migrations
 {
     [DbContext(typeof(EmployeeTrackerDbContext))]
-    [Migration("20250930124535_Empldb")]
-    partial class Empldb
+    [Migration("20251008074651_Empdb")]
+    partial class Empdb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
