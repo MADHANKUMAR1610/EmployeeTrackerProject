@@ -12,16 +12,6 @@ namespace EmployeeTracker.Services
             _employeeRepo = employeeRepo;
         }
 
-<<<<<<< HEAD
-
-=======
-        // ---------------- Authenticate ----------------
-        public async Task<Employee> AuthenticateAsync(string email, string password)
-        {
-            var employees = await _employeeRepo.FindAsync(e => e.Mail == email && e.Password == password);
-            return employees.FirstOrDefault();
-        }
->>>>>>> e01dde2744c994ab76f45522f4fada673e335b17
         // ---------------- Get employee by Id ----------------
         public async Task<Employee> GetByIdAsync(int id)
         {
