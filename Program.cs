@@ -9,6 +9,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Add configuration
 builder.Services.AddDbContext<EmployeeTrackerDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// CORS - allow React dev server
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocal", policy =>
+        policy.WithOrigins("http://localhost:5173") // React dev
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials());
+});
 
 // DI
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -36,6 +45,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseCors("AllowLocal");
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
