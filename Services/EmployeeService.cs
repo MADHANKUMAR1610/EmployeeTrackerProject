@@ -1,5 +1,6 @@
 ﻿using EmployeeTracker.Models;
 using EmployeeTracker.Repository;
+using Microsoft.EntityFrameworkCore;
 
 namespace EmployeeTracker.Services
 {
@@ -22,7 +23,12 @@ namespace EmployeeTracker.Services
         {
             return await _employeeRepo.GetAllAsync();
         }
-
+        public async Task<Employee> GetByEmailAsync(string email)
+        {
+            // Use the repository's Query() method instead of _employeeRepo.Employees
+            return await _employeeRepo.Query()
+                .FirstOrDefaultAsync(e => e.Mail == email);
+        }
 
         // ---------------- Create ----------------
         public async Task<Employee> CreateAsync(Employee employee)

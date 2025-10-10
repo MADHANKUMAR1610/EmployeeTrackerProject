@@ -54,7 +54,7 @@ namespace EmployeeTracker.Controllers
         }
 
         // ---------------- Get only pending tasks ----------------
-        [HttpGet("pending/{empId}")]
+        [HttpGet("pending/empId")]
         public async Task<ActionResult<IEnumerable<EmpTaskDto>>> GetPendingTasks(int empId)
         {
             var tasks = await _taskService.GetPendingTasksAsync(empId);
@@ -62,7 +62,7 @@ namespace EmployeeTracker.Controllers
         }
 
         // ---------------- Get only completed tasks ----------------
-        [HttpGet("completed/{empId}")]
+        [HttpGet("completed/{Emp_id}")]
         public async Task<ActionResult<IEnumerable<EmpTaskDto>>> GetCompletedTasks(int empId)
         {
             var tasks = await _taskService.GetCompletedTasksAsync(empId);
@@ -81,7 +81,7 @@ namespace EmployeeTracker.Controllers
         }
 
         // ---------------- Get pending task count (for dashboard) ----------------
-        [HttpGet("pending/count/{empId}")]
+        [HttpGet("pending/count/Emp_id")]
         public async Task<IActionResult> GetPendingTaskCount(int empId)
         {
             var count = await _taskService.GetPendingTaskCountAsync(empId);

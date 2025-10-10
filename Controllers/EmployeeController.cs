@@ -36,6 +36,20 @@ namespace EmployeeTracker.Controllers
 
             return Ok(_mapper.Map<EmployeeDto>(employee));
         }
+        //---------------- GET by email ----------------
+        [HttpGet("email/{mail}")]
+        public async Task<ActionResult<EmployeeDto>> GetEmployeeByEmail(string mail)
+        {
+            if (string.IsNullOrEmpty(mail))
+                return BadRequest("Email is required.");
+
+            var employee = await _employeeService.GetByEmailAsync(mail);
+
+            if (employee == null)
+                return NotFound("Employee not found.");
+
+            return Ok(_mapper.Map<EmployeeDto>(employee));
+        }
 
         // ---------------- POST ----------------
         [HttpPost]

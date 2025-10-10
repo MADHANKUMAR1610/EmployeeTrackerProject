@@ -24,4 +24,8 @@
         public string Role { get; set; }
         public string ProfilePictureUrl { get; set; }
     }
+    public class EmployeeEmailRequestDto
+    {
+        public string Mail { get; set; }
+    }
 }

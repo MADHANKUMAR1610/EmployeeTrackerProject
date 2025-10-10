@@ -4,6 +4,8 @@ namespace EmployeeTracker.Models
 {
     public class WorkSession
     {
+
+
         public int Id { get; set; }
         public int EmpId { get; set; }
         public Employee Employee { get; set; }

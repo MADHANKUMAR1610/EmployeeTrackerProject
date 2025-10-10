@@ -129,7 +129,8 @@ namespace EmployeeTracker.Services
             {
                 LeaveType = lb.LeaveType.ToString(),
                 TotalAllocated = lb.TotalLeave,
-                Used = lb.UsedLeave
+                Used = lb.UsedLeave,
+                Remaining = lb.TotalLeave - lb.UsedLeave // ✅ Explicitly include Remaining
             });
         }
 

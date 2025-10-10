@@ -8,5 +8,6 @@ public interface IEmployeeService
     Task<Employee> CreateAsync(Employee employee);
     Task<Employee> UpdateAsync(Employee employee);
     Task<bool> DeleteAsync(int id);
+    Task<Employee> GetByEmailAsync(string email);
 
 }

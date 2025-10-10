@@ -14,7 +14,7 @@ namespace EmployeeTracker.Services
         {
             _workSessionRepo = workSessionRepo;
             _breakRepo = breakRepo;
-        }
+        }   
 
         // ✅ Start a new break
         public async Task<Break> StartBreakAsync(int empId)

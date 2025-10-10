@@ -7,6 +7,6 @@ namespace EmployeeTracker.Dtos
         public String LeaveType { get; set; }
         public int TotalAllocated { get; set; }
         public int Used { get; set; }
-        public int Remaining => TotalAllocated - Used;
+        public int Remaining { get; set; }
     }
 }
