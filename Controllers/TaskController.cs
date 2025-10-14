@@ -54,11 +54,14 @@ namespace EmployeeTracker.Controllers
         }
 
         // ---------------- Get only pending tasks ----------------
-        [HttpGet("pending/empId")]
+        [HttpGet("pending/{empId}")]
         public async Task<ActionResult<IEnumerable<EmpTaskDto>>> GetPendingTasks(int empId)
         {
             var tasks = await _taskService.GetPendingTasksAsync(empId);
-            return Ok(tasks); // will include AssigneeName automatically
+            if (tasks == null || !tasks.Any())
+                return Ok(new List<EmpTaskDto>()); // return empty list instead of null
+
+            return Ok(tasks);
         }
 
         // ---------------- Get only completed tasks ----------------
