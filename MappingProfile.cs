@@ -35,8 +35,6 @@ namespace EmployeeTracker
             CreateMap<CreateBreakDto, Break>();
 
 
-<<<<<<< HEAD
-=======
             CreateMap<CreateEmpTaskDto, EmpTask>()
                 .ForMember(dest => dest.Priority,
                            opt => opt.MapFrom(src => Enum.Parse<TaskPriority>(src.Priority, true))) // string → enum
@@ -49,7 +47,7 @@ namespace EmployeeTracker
                opt => opt.MapFrom(src => src.Priority.ToString()))
     .ForMember(dest => dest.Status,
                opt => opt.MapFrom(src => src.Status.ToString()));
->>>>>>> 88eaa3b7d22b183668f75ccc3d7d34b05f30e1a4
+
         }
     }
 }
