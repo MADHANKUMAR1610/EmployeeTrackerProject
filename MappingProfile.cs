@@ -34,14 +34,6 @@ namespace EmployeeTracker
             CreateMap<Break, BreakDto>();
             CreateMap<CreateBreakDto, Break>();
 
-            // ---------------- Task ----------------
-            CreateMap<EmpTask, EmpTaskDto>()
-                .ForMember(dest => dest.AssigneeName,
-                           opt => opt.MapFrom(src => src.Assignee != null ? src.Assignee.Name : ""))
-                .ForMember(dest => dest.Priority,
-                           opt => opt.MapFrom(src => src.Priority.ToString())) // enum → string
-                .ForMember(dest => dest.Status,
-                           opt => opt.MapFrom(src => src.Status.ToString()));  // enum → string
 
             CreateMap<CreateEmpTaskDto, EmpTask>()
                 .ForMember(dest => dest.Priority,
@@ -55,9 +47,12 @@ namespace EmployeeTracker
                opt => opt.MapFrom(src => src.Priority.ToString()))
     .ForMember(dest => dest.Status,
                opt => opt.MapFrom(src => src.Status.ToString()));
+<<<<<<< HEAD
             CreateMap<CreateLeaveRequestDto, LeaveRequest>()
     .ForMember(dest => dest.LeaveType, opt =>
         opt.MapFrom(src => Enum.Parse<LeaveType>(src.LeaveType, true)));
+=======
+>>>>>>> c4b934717248cb7e4a46723edfa09ac5e9fc4fbf
 
         }
     }

@@ -9,26 +9,51 @@ namespace EmployeeTracker.Services
     {
         private readonly IGenericRepository<LeaveRequest> _leaveRepo;
         private readonly IGenericRepository<LeaveBalance> _balanceRepo;
+        private readonly IGenericRepository<WorkSession> _workSessionRepo;
+
+
 
         public LeaveService(
             IGenericRepository<LeaveRequest> leaveRepo,
-            IGenericRepository<LeaveBalance> balanceRepo)
+            IGenericRepository<LeaveBalance> balanceRepo,
+            IGenericRepository<WorkSession> workSessionRepo)
         {
             _leaveRepo = leaveRepo;
             _balanceRepo = balanceRepo;
+              _workSessionRepo = workSessionRepo;
         }
 
-        // ---------------- Apply leave ----------------
-        // Automatically approves and deducts leave balance
         public async Task<LeaveRequest> ApplyLeaveAsync(LeaveRequest request)
         {
-            // Auto mark as approved
+            // 1️⃣ Prevent applying overlapping leave
+            var existingLeaves = await _leaveRepo.FindAsync(l =>
+                l.EmpId == request.EmpId &&
+                (
+                    (request.StartDate >= l.StartDate && request.StartDate <= l.EndDate) ||
+                    (request.EndDate >= l.StartDate && request.EndDate <= l.EndDate) ||
+                    (request.StartDate <= l.StartDate && request.EndDate >= l.EndDate)
+                )
+            );
+
+            if (existingLeaves.Any())
+                throw new InvalidOperationException("You have already applied leave for these dates.");
+
+            // 2️⃣ Prevent applying leave for worked dates
+            var workedDates = await _workSessionRepo.FindAsync(ws =>
+                ws.EmpId == request.EmpId &&
+                ws.LoginTime.Date >= request.StartDate.Date &&
+                ws.LoginTime.Date <= request.EndDate.Date);
+
+            if (workedDates.Any())
+                throw new InvalidOperationException("Cannot apply leave for days you were present or already logged work sessions.");
+
+            // 3️⃣ Auto mark as approved
             request.Status = LeaveStatus.Approved;
 
-            // Calculate total days
+            // 4️⃣ Calculate total days
             var days = (int)((request.EndDate.Date - request.StartDate.Date).TotalDays) + 1;
 
-            // Get or initialize leave balance
+            // 5️⃣ Get or initialize leave balance
             var balances = await _balanceRepo.FindAsync(lb =>
                 lb.EmpId == request.EmpId && lb.LeaveType == request.LeaveType);
 
@@ -54,18 +79,19 @@ namespace EmployeeTracker.Services
                 await _balanceRepo.AddAsync(balance);
             }
 
-            // Deduct leave
+            // 6️⃣ Deduct leave
             balance.UsedLeave += days;
             if (balance.UsedLeave > balance.TotalLeave)
                 balance.UsedLeave = balance.TotalLeave;
 
-            // Save leave request and updated balance
+            // 7️⃣ Save leave request and updated balance
             await _leaveRepo.AddAsync(request);
             await _balanceRepo.UpdateAsync(balance);
-            await _leaveRepo.SaveChangesAsync(); // saves both because they share same DbContext
+            await _leaveRepo.SaveChangesAsync();
 
             return request;
         }
+
 
         // ---------------- Approve leave (kept for future admin flow) ----------------
         public async Task<LeaveRequest> ApproveLeaveAsync(int leaveRequestId)

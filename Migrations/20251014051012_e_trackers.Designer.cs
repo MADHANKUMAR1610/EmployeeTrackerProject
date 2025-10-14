@@ -12,13 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EmployeeTracker.Migrations
 {
     [DbContext(typeof(EmployeeTrackerDbContext))]
-<<<<<<<< HEAD:Migrations/20251014055646_Emp.Designer.cs
-    [Migration("20251014055646_Emp")]
-    partial class Emp
-========
-    [Migration("20251014051724_e_tracker")]
-    partial class e_tracker
->>>>>>>> c4b934717248cb7e4a46723edfa09ac5e9fc4fbf:Migrations/20251014051724_e_tracker.Designer.cs
+    [Migration("20251014051012_e_trackers")]
+    partial class e_trackers
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
