@@ -14,45 +14,53 @@ namespace EmployeeTracker.Services
         {
             _workSessionRepo = workSessionRepo;
             _breakRepo = breakRepo;
-        }
+        }   
 
+        // ✅ Start a new break
         public async Task<Break> StartBreakAsync(int empId)
         {
-            // ✅ Find active work session
+            // Find active work session
             var sessions = await _workSessionRepo.FindAsync(w => w.EmpId == empId && w.LogoutTime == null);
             var session = sessions.FirstOrDefault();
-            if (session == null) return null;
+            if (session == null)
+                return null;
 
-            // ✅ Create break
-            var b = new Break
+            // Create new break entry
+            var newBreak = new Break
             {
                 WorkSessionId = session.Id,
-                BreakStartTime = DateTime.UtcNow
+                BreakStartTime = DateTime.Now, // use local time for readability
+                BreakEndTime = null,
+                BreakDurationMinutes = 0
             };
 
-            return await _breakRepo.AddAsync(b);
+            return await _breakRepo.AddAsync(newBreak);
         }
 
+        // ✅ End the latest active break
         public async Task<Break> EndBreakAsync(int empId)
         {
-            // ✅ Find active work session
+            // Find active work session
             var sessions = await _workSessionRepo.FindAsync(w => w.EmpId == empId && w.LogoutTime == null);
             var session = sessions.FirstOrDefault();
-            if (session == null) return null;
+            if (session == null)
+                return null;
 
-            // ✅ Find latest open break
+            // Find the last open break
             var breaks = await _breakRepo.FindAsync(b => b.WorkSessionId == session.Id && b.BreakEndTime == null);
-            var br = breaks.OrderByDescending(b => b.BreakStartTime).FirstOrDefault();
-            if (br == null) return null;
+            var activeBreak = breaks.OrderByDescending(b => b.BreakStartTime).FirstOrDefault();
+            if (activeBreak == null)
+                return null;
 
-            // ✅ End break & calculate duration
-            br.BreakEndTime = DateTime.UtcNow;
-            br.BreakDurationMinutes = Math.Round(
-                (br.BreakEndTime.Value - br.BreakStartTime).TotalMinutes, 2
-            );
+            // End break and calculate duration
+            activeBreak.BreakEndTime = DateTime.Now;
+            var duration = activeBreak.BreakEndTime.Value - activeBreak.BreakStartTime;
 
-            await _breakRepo.UpdateAsync(br);
-            return br;
+            // Store clean duration in minutes
+            activeBreak.BreakDurationMinutes = Math.Round(duration.TotalMinutes, 2);
+
+            await _breakRepo.UpdateAsync(activeBreak);
+            return activeBreak;
         }
     }
 }

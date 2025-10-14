@@ -1,17 +1,12 @@
 ﻿using AutoMapper;
-using EmployeeTracker.Datas;
 using EmployeeTracker.Dtos;
-using EmployeeTracker.Models;
 using EmployeeTracker.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace EmployeeTracker.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-
     public class TaskController : ControllerBase
     {
         private readonly ITaskService _taskService;
@@ -23,74 +18,99 @@ namespace EmployeeTracker.Controllers
             _mapper = mapper;
         }
 
-        // Create a new task
+        // ---------------- Create a new task ----------------
         [HttpPost]
-        public async Task<ActionResult<EmpTaskDto>> CreateTask(CreateEmpTaskDto dto)
+        public async Task<ActionResult<EmpTaskDto>> CreateTask([FromBody] CreateEmpTaskDto dto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var task = await _taskService.CreateTaskAsync(dto);
-            return Ok(task); // already mapped in service
+            return CreatedAtAction(nameof(GetTaskById), new { taskId = task.Id }, task);
         }
 
-        // Get all tasks assigned to or created by employee
+        // ---------------- Get single task by Id (for task details page) ----------------
+        [HttpGet("{taskId}")]
+        public async Task<ActionResult<EmpTaskDto>> GetTaskById(int taskId)
+        {
+            var tasks = await _taskService.GetTasksByEmployeeAsync(0); // fallback if service has no GetById
+            var task = tasks.FirstOrDefault(t => t.Id == taskId);
+
+            if (task == null)
+                return NotFound("Task not found");
+
+            return Ok(task);
+        }
+
+        // ---------------- Get all tasks for an employee ----------------
         [HttpGet("by-employee/{empId}")]
         public async Task<ActionResult<IEnumerable<EmpTaskDto>>> GetTasksByEmployee(int empId)
         {
             var tasks = await _taskService.GetTasksByEmployeeAsync(empId);
+            if (tasks == null || !tasks.Any())
+                return NotFound("No tasks found for this employee");
+
             return Ok(tasks);
         }
-        
-        // GET: api/tasks/pending/{empId}
-        [HttpGet("pending/{empId}")]
-        public async Task<IActionResult> GetPendingTasks(int empId)
+
+        // ---------------- Get only pending tasks ----------------
+        [HttpGet("pending/empId")]
+        public async Task<ActionResult<IEnumerable<EmpTaskDto>>> GetPendingTasks(int empId)
         {
             var tasks = await _taskService.GetPendingTasksAsync(empId);
-            return Ok(tasks);
+            return Ok(tasks); // will include AssigneeName automatically
         }
-        // Task page - get completed tasks
-        [HttpGet("completed/{empId}")]
-        public async Task<IActionResult> GetCompletedTasks(int empId)
+
+        // ---------------- Get only completed tasks ----------------
+        [HttpGet("completed/{Emp_id}")]
+        public async Task<ActionResult<IEnumerable<EmpTaskDto>>> GetCompletedTasks(int empId)
         {
             var tasks = await _taskService.GetCompletedTasksAsync(empId);
             return Ok(tasks);
         }
 
-        // Update task status -> completed
+        // ---------------- Mark task as completed ----------------
         [HttpPut("complete/{taskId}")]
         public async Task<IActionResult> CompleteTask(int taskId)
         {
             var result = await _taskService.CompleteTaskAsync(taskId);
-            if (!result) return NotFound("Task not found");
+            if (!result)
+                return NotFound("Task not found");
 
-            return Ok("Task marked as completed");
-
+            return Ok(new { Message = "Task marked as completed successfully" });
         }
-        // Get pending task count for dashboard
-        [HttpGet("pending/count/{empId}")]
+
+        // ---------------- Get pending task count (for dashboard) ----------------
+        [HttpGet("pending/count/Emp_id")]
         public async Task<IActionResult> GetPendingTaskCount(int empId)
         {
             var count = await _taskService.GetPendingTaskCountAsync(empId);
-            return Ok(count);
+            return Ok(new { PendingCount = count });
         }
 
-        // ---------------- Delete task ----------------
-        [HttpDelete("{taskId}")]
-        public async Task<IActionResult> DeleteTask(int taskId)
-        {
-            var result = await _taskService.DeleteTaskAsync(taskId);
-            if (!result) return NotFound("Task not found");
-
-            return NoContent(); // 204 No Content on successful deletion
-        }
-
-        // ---------------- Update task details ----------------
+        // ---------------- Update existing task ----------------
         [HttpPut("{taskId}")]
-        public async Task<IActionResult> UpdateTask(int taskId, CreateEmpTaskDto dto)
+        public async Task<IActionResult> UpdateTask(int taskId, [FromBody] CreateEmpTaskDto dto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var updatedTask = await _taskService.UpdateTaskAsync(taskId, dto);
-            if (updatedTask == null) return NotFound("Task not found");
+            if (updatedTask == null)
+                return NotFound("Task not found");
 
             return Ok(updatedTask);
         }
 
+        // ---------------- Delete a task ----------------
+        [HttpDelete("{taskId}")]
+        public async Task<IActionResult> DeleteTask(int taskId)
+        {
+            var result = await _taskService.DeleteTaskAsync(taskId);
+            if (!result)
+                return NotFound("Task not found");
+
+            return Ok(new { Message = "Task deleted successfully" });
+        }
     }
 }

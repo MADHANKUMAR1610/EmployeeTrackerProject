@@ -5,7 +5,7 @@ namespace EmployeeTracker.Models
 {
     public class Break
     {
-        
+       
             public int Id { get; set; }
             public int WorkSessionId { get; set; }
             public WorkSession WorkSession { get; set; }

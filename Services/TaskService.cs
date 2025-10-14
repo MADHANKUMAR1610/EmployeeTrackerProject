@@ -24,13 +24,25 @@ namespace EmployeeTracker.Services
             var task = _mapper.Map<EmpTask>(dto);
             await _taskRepo.AddAsync(task);
             await _taskRepo.SaveChangesAsync();
-            return _mapper.Map<EmpTaskDto>(task);
+
+            // include Assignee info after save
+            var savedTask = await _taskRepo
+                .Query()
+                .Include(t => t.Assignee)
+                .FirstOrDefaultAsync(t => t.Id == task.Id);
+
+            return _mapper.Map<EmpTaskDto>(savedTask);
         }
 
         // ---------------- Get all tasks for employee ----------------
         public async Task<IEnumerable<EmpTaskDto>> GetTasksByEmployeeAsync(int empId)
         {
-            var tasks = await _taskRepo.FindAsync(x => x.EmpId == empId || x.AssigneeId == empId);
+            var tasks = await _taskRepo
+                .Query()
+                .Where(t => t.EmpId == empId || t.AssigneeId == empId)
+                .Include(t => t.Assignee)
+                .ToListAsync();
+
             return _mapper.Map<IEnumerable<EmpTaskDto>>(tasks);
         }
 
@@ -38,21 +50,24 @@ namespace EmployeeTracker.Services
         public async Task<IEnumerable<EmpTaskDto>> GetPendingTasksAsync(int empId)
         {
             var tasks = await _taskRepo
-                   .Query() // <- make sure GenericRepository exposes IQueryable<T>
-                 .Where(t => (t.EmpId == empId || t.AssigneeId == empId) && t.Status == TaskStatus.Pending)
+                .Query()
+                .Where(t => (t.EmpId == empId || t.AssigneeId == empId) && t.Status == TaskStatus.Pending)
                 .Include(t => t.Assignee)
-                  .ToListAsync();
-            
+                .ToListAsync();
+
+            // AutoMapper will automatically map Assignee.Name → AssigneeName
             return _mapper.Map<IEnumerable<EmpTaskDto>>(tasks);
         }
 
         // ---------------- Get completed tasks ----------------
         public async Task<IEnumerable<EmpTaskDto>> GetCompletedTasksAsync(int empId)
         {
-            var tasks = await _taskRepo.FindAsync(
-                t => (t.EmpId == empId || t.AssigneeId == empId)
-                  && t.Status == TaskStatus.Completed
-            );
+            var tasks = await _taskRepo
+                .Query()
+                .Where(t => (t.EmpId == empId || t.AssigneeId == empId) && t.Status == TaskStatus.Completed)
+                .Include(t => t.Assignee)
+                .ToListAsync();
+
             return _mapper.Map<IEnumerable<EmpTaskDto>>(tasks);
         }
 
@@ -62,23 +77,22 @@ namespace EmployeeTracker.Services
             var task = await _taskRepo.GetByIdAsync(taskId);
             if (task == null) return false;
 
-            task.Status = EmployeeTracker.Models.TaskStatus.Completed; // also add namespace to avoid ambiguity
+            task.Status = TaskStatus.Completed;
 
-            _taskRepo.Update(task);                 // ✅ no await here
-            await _taskRepo.SaveChangesAsync();     // ✅ still async
-
+            _taskRepo.Update(task);
+            await _taskRepo.SaveChangesAsync();
             return true;
         }
 
         // ---------------- Get pending task count ----------------
         public async Task<int> GetPendingTaskCountAsync(int empId)
         {
-            var tasks = await _taskRepo.FindAsync(
-                t => t.EmpId == empId && t.Status == TaskStatus.Pending
-            );
-            return tasks.Count();
+            return await _taskRepo
+                .Query()
+                .CountAsync(t => (t.EmpId == empId || t.AssigneeId == empId) && t.Status == TaskStatus.Pending);
         }
-        //delete a task
+
+        // ---------------- Delete a task ----------------
         public async Task<bool> DeleteTaskAsync(int taskId)
         {
             var task = await _taskRepo.GetByIdAsync(taskId);
@@ -88,19 +102,22 @@ namespace EmployeeTracker.Services
             await _taskRepo.SaveChangesAsync();
             return true;
         }
-        // update a task
 
+        // ---------------- Update a task ----------------
         public async Task<EmpTaskDto> UpdateTaskAsync(int taskId, CreateEmpTaskDto dto)
         {
-            var task = await _taskRepo.GetByIdAsync(taskId);
+            var task = await _taskRepo
+                .Query()
+                .Include(t => t.Assignee)
+                .FirstOrDefaultAsync(t => t.Id == taskId);
+
             if (task == null) return null;
 
-            _mapper.Map(dto, task);  // Map updated fields from DTO to existing task
+            _mapper.Map(dto, task); // AutoMapper handles mapping DTO → Model (with enums)
             _taskRepo.Update(task);
             await _taskRepo.SaveChangesAsync();
 
             return _mapper.Map<EmpTaskDto>(task);
         }
-
     }
 }
