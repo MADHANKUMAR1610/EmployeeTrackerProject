@@ -47,12 +47,6 @@ namespace EmployeeTracker
                opt => opt.MapFrom(src => src.Priority.ToString()))
     .ForMember(dest => dest.Status,
                opt => opt.MapFrom(src => src.Status.ToString()));
-<<<<<<< HEAD
-            CreateMap<CreateLeaveRequestDto, LeaveRequest>()
-    .ForMember(dest => dest.LeaveType, opt =>
-        opt.MapFrom(src => Enum.Parse<LeaveType>(src.LeaveType, true)));
-=======
->>>>>>> c4b934717248cb7e4a46723edfa09ac5e9fc4fbf
 
         }
     }

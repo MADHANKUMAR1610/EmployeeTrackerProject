@@ -22,26 +22,36 @@ namespace EmployeeTracker.Controllers
         // ---------------- Apply Leave ----------------
         // Automatically approves and deducts leave balance
         [HttpPost("apply")]
-        public async Task<ActionResult<LeaveRequestDto>> ApplyLeave([FromBody] CreateLeaveRequestDto dto)
+        public async Task<ActionResult<LeaveRequestDto>> ApplyLeave([FromBody] ApplyLeaveDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var leaveRequest = _mapper.Map<LeaveRequest>(dto);
-
             try
             {
-                var createdLeave = await _leaveService.ApplyLeaveAsync(leaveRequest);
+                var request = new LeaveRequest
+                {
+                    EmpId = dto.EmpId,
+                    LeaveType = Enum.Parse<LeaveType>(dto.LeaveType, true),
+                    StartDate = dto.Date,
+                    EndDate = dto.Date,
+                    Reason = dto.Description ?? "No description provided",
+                    Status = LeaveStatus.Approved
+                };
+
+                var createdLeave = await _leaveService.ApplyLeaveAsync(request);
                 var response = _mapper.Map<LeaveRequestDto>(createdLeave);
-                return CreatedAtAction(nameof(GetLeavesByEmployee), new { empId = response.EmpId }, response);
+                return Ok(response);
             }
             catch (InvalidOperationException ex)
             {
-                // Duplicate or overlapping leave error
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
                 return BadRequest(new { message = ex.Message });
             }
         }
-
 
         // ---------------- Get Leave by Employee ----------------
         [HttpGet("byemp/{empId}")]
