@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace EmployeeTracker.Migrations
 {
     /// <inheritdoc />
-    public partial class Emp : Migration
+    public partial class e_trackers : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

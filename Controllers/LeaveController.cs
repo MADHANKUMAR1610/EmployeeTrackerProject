@@ -28,11 +28,20 @@ namespace EmployeeTracker.Controllers
                 return BadRequest(ModelState);
 
             var leaveRequest = _mapper.Map<LeaveRequest>(dto);
-            var createdLeave = await _leaveService.ApplyLeaveAsync(leaveRequest);
 
-            var response = _mapper.Map<LeaveRequestDto>(createdLeave);
-            return CreatedAtAction(nameof(GetLeavesByEmployee), new { empId = response.EmpId }, response);
+            try
+            {
+                var createdLeave = await _leaveService.ApplyLeaveAsync(leaveRequest);
+                var response = _mapper.Map<LeaveRequestDto>(createdLeave);
+                return CreatedAtAction(nameof(GetLeavesByEmployee), new { empId = response.EmpId }, response);
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Duplicate or overlapping leave error
+                return BadRequest(new { message = ex.Message });
+            }
         }
+
 
         // ---------------- Get Leave by Employee ----------------
         [HttpGet("byemp/{empId}")]

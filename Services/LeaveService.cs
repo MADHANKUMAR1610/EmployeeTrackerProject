@@ -22,6 +22,19 @@ namespace EmployeeTracker.Services
         // Automatically approves and deducts leave balance
         public async Task<LeaveRequest> ApplyLeaveAsync(LeaveRequest request)
         {
+            // Check for overlapping leave for the same employee
+            var existingLeaves = await _leaveRepo.FindAsync(l =>
+                l.EmpId == request.EmpId &&
+                (
+                    (request.StartDate >= l.StartDate && request.StartDate <= l.EndDate) ||
+                    (request.EndDate >= l.StartDate && request.EndDate <= l.EndDate) ||
+                    (request.StartDate <= l.StartDate && request.EndDate >= l.EndDate)
+                )
+            );
+
+            if (existingLeaves.Any())
+                throw new InvalidOperationException("You have already applied leave for these dates.");
+
             // Auto mark as approved
             request.Status = LeaveStatus.Approved;
 
