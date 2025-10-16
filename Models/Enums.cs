@@ -15,9 +15,10 @@
 
     public enum TaskStatus
     {
-        Pending = 0,
-        Completed = 1
+        Pending,
+        Completed
     }
+
 
     public enum TaskPriority
     {

@@ -12,7 +12,7 @@ namespace EmployeeTracker.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    
+
     public class WorkSessionController : ControllerBase
     {
         private readonly EmployeeTrackerDbContext _context;

@@ -24,8 +24,9 @@ namespace EmployeeTracker.Services
 
         Task<bool> DeleteTaskAsync(int taskId);
         // Update an existing task
-        Task<EmpTaskDto> UpdateTaskAsync(int taskId, CreateEmpTaskDto dto);
-       
+        
+        Task<EmpTaskDto> UpdateTaskAsync(int taskId, UpdateEmpTaskDto dto);
+
 
     }
 }

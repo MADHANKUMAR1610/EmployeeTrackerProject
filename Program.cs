@@ -11,29 +11,21 @@ builder.Services.AddControllers()
     .AddJsonOptions(opts =>
         opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
+// ✅ Unified CORS policy for React (5173 + 5174)
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowLocalDev", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173") // react / vite
+        policy.WithOrigins("http://localhost:5173", "http://localhost:5174")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
     });
 });
 
-// Add configuration
+// Database
 builder.Services.AddDbContext<EmployeeTrackerDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-// CORS - allow React dev server
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowLocal", policy =>
-        policy.WithOrigins("http://localhost:5173") // React dev
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials());
-});
 
 // Dependency Injection
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -51,14 +43,14 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-app.UseCors("AllowLocalDev"); // ✅ fixed name
+// ✅ Use CORS before controllers
+app.UseCors("AllowFrontend");
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseCors("AllowLocal");
 
 //app.UseHttpsRedirection();
 app.UseAuthorization();

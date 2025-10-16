@@ -19,11 +19,25 @@ namespace EmployeeTracker.Repository
         {
             return _dbSet.AsQueryable();
         }
-
+        // ✅ Add this method (NEW)
+        public EmployeeTrackerDbContext GetContext()
+        {
+            return _ctx;
+        }
         public async Task<T> AddAsync(T entity)
         {
             var e = (await _dbSet.AddAsync(entity)).Entity;
-            await _ctx.SaveChangesAsync();   // save immediately
+            try
+            {
+                await _ctx.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                var entries = ex.Entries; // Entities that caused the error
+                var inner = ex.InnerException; // Real database error
+                throw new Exception($"Save failed: {inner?.Message}", ex);
+            }
+            // save immediately
             return e;
         }
 

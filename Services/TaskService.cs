@@ -10,26 +10,50 @@ namespace EmployeeTracker.Services
     public class TaskService : ITaskService
     {
         private readonly IGenericRepository<EmpTask> _taskRepo;
+        private readonly IGenericRepository<Employee> _employeeRepo;
         private readonly IMapper _mapper;
 
-        public TaskService(IGenericRepository<EmpTask> taskRepo, IMapper mapper)
+        public TaskService(
+            IGenericRepository<EmpTask> taskRepo,
+            IGenericRepository<Employee> employeeRepo,
+            IMapper mapper)
         {
             _taskRepo = taskRepo;
+            _employeeRepo = employeeRepo;
             _mapper = mapper;
         }
 
         // ---------------- Create a new task ----------------
         public async Task<EmpTaskDto> CreateTaskAsync(CreateEmpTaskDto dto)
         {
-            var task = _mapper.Map<EmpTask>(dto);
-            await _taskRepo.AddAsync(task);
-            await _taskRepo.SaveChangesAsync();
+            // Check if creator exists
+            var employee = await _employeeRepo.GetByIdAsync(dto.EmpId);
+            if (employee == null)
+                throw new KeyNotFoundException($"Employee with Id {dto.EmpId} not found.");
 
-            // include Assignee info after save
+            var entity = _mapper.Map<EmpTask>(dto);
+
+            // Map Assignee if provided
+            if (!string.IsNullOrEmpty(dto.AssigneeName))
+            {
+                var assignee = await _employeeRepo
+                    .Query()
+                    .FirstOrDefaultAsync(e => e.Name == dto.AssigneeName);
+
+                if (assignee != null)
+                    entity.AssigneeId = assignee.Id;
+                else
+                    throw new KeyNotFoundException($"Employee '{dto.AssigneeName}' not found.");
+            }
+
+            entity.EmpId = dto.EmpId;
+
+            await _taskRepo.AddAsync(entity);
+
             var savedTask = await _taskRepo
                 .Query()
                 .Include(t => t.Assignee)
-                .FirstOrDefaultAsync(t => t.Id == task.Id);
+                .FirstOrDefaultAsync(t => t.Id == entity.Id);
 
             return _mapper.Map<EmpTaskDto>(savedTask);
         }
@@ -55,7 +79,6 @@ namespace EmployeeTracker.Services
                 .Include(t => t.Assignee)
                 .ToListAsync();
 
-            // AutoMapper will automatically map Assignee.Name → AssigneeName
             return _mapper.Map<IEnumerable<EmpTaskDto>>(tasks);
         }
 
@@ -74,13 +97,12 @@ namespace EmployeeTracker.Services
         // ---------------- Mark task as completed ----------------
         public async Task<bool> CompleteTaskAsync(int taskId)
         {
-            var task = await _taskRepo.GetByIdAsync(taskId);
-            if (task == null) return false;
+            var entity = await _taskRepo.GetByIdAsync(taskId);
+            if (entity == null) return false;
 
-            task.Status = TaskStatus.Completed;
+            entity.Status = TaskStatus.Completed;
+            await _taskRepo.UpdateAsync(entity);
 
-            _taskRepo.Update(task);
-            await _taskRepo.SaveChangesAsync();
             return true;
         }
 
@@ -95,29 +117,27 @@ namespace EmployeeTracker.Services
         // ---------------- Delete a task ----------------
         public async Task<bool> DeleteTaskAsync(int taskId)
         {
-            var task = await _taskRepo.GetByIdAsync(taskId);
-            if (task == null) return false;
+            var entity = await _taskRepo.GetByIdAsync(taskId);
+            if (entity == null) return false;
 
             await _taskRepo.DeleteAsync(taskId);
-            await _taskRepo.SaveChangesAsync();
             return true;
         }
 
         // ---------------- Update a task ----------------
-        public async Task<EmpTaskDto> UpdateTaskAsync(int taskId, CreateEmpTaskDto dto)
+        public async Task<EmpTaskDto> UpdateTaskAsync(int taskId, UpdateEmpTaskDto dto)
         {
-            var task = await _taskRepo
+            var entity = await _taskRepo
                 .Query()
                 .Include(t => t.Assignee)
                 .FirstOrDefaultAsync(t => t.Id == taskId);
 
-            if (task == null) return null;
+            if (entity == null) return null;
 
-            _mapper.Map(dto, task); // AutoMapper handles mapping DTO → Model (with enums)
-            _taskRepo.Update(task);
-            await _taskRepo.SaveChangesAsync();
+            _mapper.Map(dto, entity);
+            await _taskRepo.UpdateAsync(entity);
 
-            return _mapper.Map<EmpTaskDto>(task);
+            return _mapper.Map<EmpTaskDto>(entity);
         }
     }
 }

@@ -29,7 +29,7 @@ namespace EmployeeTracker.Controllers
             return CreatedAtAction(nameof(GetTaskById), new { taskId = task.Id }, task);
         }
 
-        // ---------------- Get single task by Id (for task details page) ----------------
+        // ---------------- Get single task by Id ----------------
         [HttpGet("{taskId}")]
         public async Task<ActionResult<EmpTaskDto>> GetTaskById(int taskId)
         {
@@ -58,18 +58,15 @@ namespace EmployeeTracker.Controllers
         public async Task<ActionResult<IEnumerable<EmpTaskDto>>> GetPendingTasks(int empId)
         {
             var tasks = await _taskService.GetPendingTasksAsync(empId);
-            if (tasks == null || !tasks.Any())
-                return Ok(new List<EmpTaskDto>()); // return empty list instead of null
-
-            return Ok(tasks);
+            return Ok(tasks ?? new List<EmpTaskDto>());
         }
 
         // ---------------- Get only completed tasks ----------------
-        [HttpGet("completed/{Emp_id}")]
+        [HttpGet("completed/{empId}")]
         public async Task<ActionResult<IEnumerable<EmpTaskDto>>> GetCompletedTasks(int empId)
         {
             var tasks = await _taskService.GetCompletedTasksAsync(empId);
-            return Ok(tasks);
+            return Ok(tasks ?? new List<EmpTaskDto>());
         }
 
         // ---------------- Mark task as completed ----------------
@@ -83,8 +80,8 @@ namespace EmployeeTracker.Controllers
             return Ok(new { Message = "Task marked as completed successfully" });
         }
 
-        // ---------------- Get pending task count (for dashboard) ----------------
-        [HttpGet("pending/count/Emp_id")]
+        // ---------------- Get pending task count ----------------
+        [HttpGet("pending/count/{empId}")]
         public async Task<IActionResult> GetPendingTaskCount(int empId)
         {
             var count = await _taskService.GetPendingTaskCountAsync(empId);
@@ -93,7 +90,7 @@ namespace EmployeeTracker.Controllers
 
         // ---------------- Update existing task ----------------
         [HttpPut("{taskId}")]
-        public async Task<IActionResult> UpdateTask(int taskId, [FromBody] CreateEmpTaskDto dto)
+        public async Task<IActionResult> UpdateTask(int taskId, [FromBody] UpdateEmpTaskDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
